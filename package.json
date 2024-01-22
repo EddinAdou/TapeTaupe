@@ -1,0 +1,11 @@
+{
+  "name": "tapetaupe",
+  "version": "1.0.0",
+  "description": "jeu de tape taupe",
+  "main": "app.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "eddin yannick",
+  "license": "ISC"
+}
