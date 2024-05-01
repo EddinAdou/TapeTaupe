@@ -5,7 +5,7 @@
 }
 /* body {
     
-        background-image: url('/public/img/5.png'); background-size: cover; background-repeat: no-repeat;
+        background-image: url('./public/img/5.png'); background-size: cover; background-repeat: no-repeat;
         cursor: url(8.cur), auto;
 } */
 .hammer{

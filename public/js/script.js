@@ -10,7 +10,6 @@ let defeat = false
 let interval
 let block
 let baseSpeed = 5000;
-// let gameInterval; 
     
 
 document.querySelector('#startGame').addEventListener('click', () =>{
