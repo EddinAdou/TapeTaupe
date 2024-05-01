@@ -10,13 +10,13 @@
 } */
 .hammer{
     cursor: url(8.cur), auto;
-    background-image: url('./public/img/5.png'); background-size: cover; background-repeat: no-repeat;
+    background-image: url('../public/img/5.png'); background-size: cover; background-repeat: no-repeat;
 }
 .none{
     display: none;
 }
 .character{
-    background-image: url('./public/img/2.png');
+    background-image: url('../public/img/2.png');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
