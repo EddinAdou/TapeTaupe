@@ -128,6 +128,10 @@
   gap: var(--space-3);
 }
 
+.home__stat--desktop-only {
+  display: none;
+}
+
 .home__ctas {
   width: 100%;
   max-width: 520px;
@@ -145,12 +149,12 @@
     height: 200px;
   }
   .home__ctas {
-    flex-direction: row;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
   }
   .home__ctas .chunky-button {
-    flex: 0 1 240px;
-    min-width: 200px;
+    width: 100%;
   }
 }
 
@@ -164,11 +168,14 @@
     height: 220px;
   }
   .home__stats {
-    max-width: 640px;
+    max-width: 720px;
     grid-template-columns: 1fr 1fr 1fr;
   }
+  .home__stat--desktop-only {
+    display: flex;
+  }
   .home__ctas {
-    max-width: 640px;
+    max-width: 480px;
   }
 }
 

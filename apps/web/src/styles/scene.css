@@ -15,6 +15,15 @@
 .scene-bg svg {
   display: block;
   overflow: visible;
+  width: 100%;
+  height: auto;
+}
+
+.tt-scene-sun svg,
+.tt-scene-bird svg,
+.tt-scene-detail svg {
+  height: 100%;
+  width: 100%;
 }
 
 /* ────────── Sun ────────── */

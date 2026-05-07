@@ -6,6 +6,8 @@
   "home.tagline.duration": "60 secondes.",
   "home.stat.bestScore": "Meilleur score",
   "home.stat.totalGames": "Parties jouées",
+  "home.stat.difficulty": "Difficulté",
+  "home.stat.difficulty.normal": "Normal",
   "home.button.play": "JOUER",
   "home.button.howto": "COMMENT JOUER",
   "home.button.leaderboard": "CLASSEMENT",

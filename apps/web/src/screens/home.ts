@@ -33,6 +33,11 @@ export function renderHome(): HTMLElement {
     el('div', { class: 'home__stats' }, [
       renderStatCard(t('home.stat.bestScore'), '0', 'primary'),
       renderStatCard(t('home.stat.totalGames'), '0'),
+      (() => {
+        const card = renderStatCard(t('home.stat.difficulty'), t('home.stat.difficulty.normal'));
+        card.classList.add('home__stat--desktop-only');
+        return card;
+      })(),
     ]),
 
     el('div', { class: 'home__ctas' }, [
