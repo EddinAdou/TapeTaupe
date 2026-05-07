@@ -148,6 +148,10 @@
     flex-direction: row;
     justify-content: center;
   }
+  .home__ctas .chunky-button {
+    flex: 0 1 240px;
+    min-width: 200px;
+  }
 }
 
 @media (min-width: 1280px) {
