@@ -1,0 +1,14 @@
+:root {
+  font-family: system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  padding: 32px;
+}
+
+h1 {
+  font-size: 32px;
+  margin: 0 0 8px;
+}
