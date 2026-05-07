@@ -1,6 +1,13 @@
 import { el } from '../dom';
 
-export function renderBigScore(value: number, digits = 4): HTMLElement {
+interface BigScoreOptions {
+  digits?: number;
+  size?: 'normal' | 'xl';
+}
+
+export function renderBigScore(value: number, options: BigScoreOptions = {}): HTMLElement {
+  const { digits = 4, size = 'normal' } = options;
   const formatted = String(value).padStart(digits, '0');
-  return el('div', { class: 'big-score tabular' }, [formatted]);
+  const cls = size === 'xl' ? 'big-score big-score--xl tabular' : 'big-score tabular';
+  return el('div', { class: cls }, [formatted]);
 }
