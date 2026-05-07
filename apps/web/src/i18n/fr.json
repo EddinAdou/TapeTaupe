@@ -1,0 +1,32 @@
+{
+  "home.version": "v1 · arcade tropicale",
+  "home.title": "TAPETAUPE",
+  "home.tagline.line1": "Tape les taupes, évite les bombes,",
+  "home.tagline.line2": "grimpe les niveaux.",
+  "home.tagline.duration": "60 secondes.",
+  "home.stat.bestScore": "Meilleur score",
+  "home.stat.totalGames": "Parties jouées",
+  "home.stat.difficulty": "Difficulté",
+  "home.stat.difficulty.normal": "Normal",
+  "home.button.play": "JOUER",
+  "home.button.howto": "COMMENT JOUER",
+  "home.button.leaderboard": "CLASSEMENT",
+
+  "game.score": "Score",
+  "game.level": "Niveau",
+  "game.time": "Temps",
+  "game.combo": "Combo",
+  "game.lives": "Vies",
+  "game.button.quit": "QUITTER",
+  "game.button.pause": "PAUSE",
+
+  "gameover.pill.over": "Partie terminée",
+  "gameover.pill.level": "Niveau atteint",
+  "gameover.headline": "Belle partie.",
+  "gameover.stat.hits": "Taupes touchées",
+  "gameover.stat.accuracy": "Précision",
+  "gameover.stat.combo": "Combo max",
+  "gameover.stat.bombs": "Bombes touchées",
+  "gameover.button.replay": "REJOUER",
+  "gameover.button.home": "ACCUEIL"
+}

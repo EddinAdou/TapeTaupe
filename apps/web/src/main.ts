@@ -1,10 +1,15 @@
-import './style.css';
+import './styles/reset.css';
+import './styles/tokens.css';
+import './styles/typography.css';
+import './styles/scene.css';
+import './styles/components.css';
+import './styles/screens.css';
 
-const app = document.querySelector<HTMLDivElement>('#app');
+import { query } from './dom';
+import { renderScene } from './scene/tropical-island';
+import { initScreens } from './screen-manager';
 
-if (app) {
-  app.innerHTML = `
-    <h1>TAPETAUPE</h1>
-    <p>Scaffold ready — Phase 0 step 2 ✓</p>
-  `;
-}
+document.body.prepend(renderScene());
+
+const root = query<HTMLDivElement>('#app');
+initScreens(root, 'home');
