@@ -1,6 +1,7 @@
-import type { GameConfig, GameState } from '@tapetaupe/shared';
+import type { ActiveMole, GameConfig, GameState } from '@tapetaupe/shared';
 import { createInitialState } from '@tapetaupe/shared';
 
+import { addMole, expireMoles, pickEmptyHole, spawnConfigForLevel } from './spawn';
 import { isOver, tickTime } from './time';
 
 export type GameListener = (state: Readonly<GameState>) => void;
@@ -13,11 +14,23 @@ export interface Game {
   subscribe(listener: GameListener): () => void;
 }
 
-export function createGame(config: GameConfig): Game {
+export interface CreateGameOptions {
+  rand?: () => number;
+  now?: () => number;
+}
+
+const FIRST_SPAWN_DELAY_MS = 500;
+
+export function createGame(config: GameConfig, options: CreateGameOptions = {}): Game {
+  const rand = options.rand ?? Math.random;
+  const now = options.now ?? performance.now.bind(performance);
+
   const state = createInitialState(config);
   const listeners = new Set<GameListener>();
   let rafId: number | null = null;
   let lastFrame: number | null = null;
+  let nextSpawnAt = 0;
+  let nextMoleId = 1;
 
   const notify = (): void => {
     for (const listener of listeners) listener(state);
@@ -31,10 +44,38 @@ export function createGame(config: GameConfig): Game {
     lastFrame = null;
   };
 
+  const scheduleNextSpawn = (currentTime: number, level: number): void => {
+    const cfg = spawnConfigForLevel(level);
+    nextSpawnAt =
+      currentTime + cfg.intervalMinMs + rand() * (cfg.intervalMaxMs - cfg.intervalMinMs);
+  };
+
+  const handleSpawn = (currentTime: number): void => {
+    const cfg = spawnConfigForLevel(state.level);
+    if (state.activeMoles.length >= cfg.maxConcurrent) return;
+    if (currentTime < nextSpawnAt) return;
+    const holeIndex = pickEmptyHole(state, rand);
+    if (holeIndex === null) {
+      scheduleNextSpawn(currentTime, state.level);
+      return;
+    }
+    addMole(state, holeIndex, 'standard', currentTime, cfg.lifetimeMs, nextMoleId++);
+    scheduleNextSpawn(currentTime, state.level);
+  };
+
+  const handleExpire = (mole: ActiveMole): void => {
+    if (mole.type === 'bomb') return;
+    state.lives = Math.max(0, state.lives - 1);
+    state.combo = 0;
+    state.misses += 1;
+  };
+
   const loop = (timestamp: number): void => {
     const delta = lastFrame === null ? 0 : timestamp - lastFrame;
     lastFrame = timestamp;
     tickTime(state, delta);
+    expireMoles(state, timestamp, handleExpire);
+    handleSpawn(timestamp);
     if (isOver(state)) {
       state.status = 'game_over';
       stop();
@@ -48,7 +89,9 @@ export function createGame(config: GameConfig): Game {
   const start = (): void => {
     if (state.status !== 'idle' && state.status !== 'paused') return;
     state.status = 'playing';
-    state.startedAt = performance.now();
+    const startTime = now();
+    state.startedAt = startTime;
+    nextSpawnAt = startTime + FIRST_SPAWN_DELAY_MS;
     lastFrame = null;
     rafId = requestAnimationFrame(loop);
   };
