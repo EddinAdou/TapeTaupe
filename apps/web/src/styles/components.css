@@ -123,6 +123,73 @@
   opacity: 0.7;
 }
 
+/* ────────── Big score (HUD) ────────── */
+
+.big-score {
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: clamp(40px, 8vw, 72px);
+  letter-spacing: -0.03em;
+  color: var(--color-sun);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  -webkit-text-stroke: 3px var(--color-petrol);
+  text-shadow: 0 4px 0 var(--color-petrol);
+  paint-order: stroke fill;
+}
+
+/* ────────── Lives (hearts) ────────── */
+
+.lives {
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.heart {
+  width: 28px;
+  height: 28px;
+}
+
+@media (min-width: 1280px) {
+  .heart {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* ────────── Timer bar ────────── */
+
+.timer-bar {
+  width: 100%;
+  height: 12px;
+  background: rgb(255 255 255 / 50%);
+  border: 2px solid var(--color-petrol);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.timer-bar__fill {
+  height: 100%;
+  background: var(--color-mole);
+  transition: width 0.3s linear;
+}
+
+/* ────────── Combo meter ────────── */
+
+.combo-meter {
+  font-family: var(--font-display);
+  color: var(--color-mole);
+  font-size: clamp(18px, 3.5vw, 28px);
+  letter-spacing: -0.02em;
+  -webkit-text-stroke: 1.5px var(--color-petrol);
+  paint-order: stroke fill;
+}
+
+.combo-meter--hidden {
+  visibility: hidden;
+}
+
 /* ────────── Stat card ────────── */
 
 .stat-card {
