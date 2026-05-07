@@ -1,8 +1,3 @@
-/* TAPETAUPE — sand hole (terrier)
- * Concentric ellipses giving depth: drop shadow, outer rim, interior, inner shadow, deepest center.
- * Used on the home (mascot emerging) and on the game board (one per cell).
- */
-
 const PETROL = 'var(--color-petrol)';
 const SAND_DARK = 'var(--color-sand-dark)';
 const SAND_SHADOW = 'var(--color-sand-shadow)';

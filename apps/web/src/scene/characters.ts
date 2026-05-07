@@ -1,16 +1,3 @@
-/* TAPETAUPE characters
- * Standard mole (Phase 1.4 — only the mascot used on the home screen).
- * Other variants (golden, speedy, bomb) come in Phase 3 when gameplay needs them.
- *
- * Anatomy (per DESIGN.md):
- *  - pear-shaped body, lighter belly
- *  - sleepy half-closed eyes (heavy upper lids)
- *  - pointed pink snout sticking forward
- *  - big goofy open smile, tongue, 2 prominent upper incisors
- *  - tiny clawed front paws
- *  - thick petrol outline (3-4px)
- */
-
 const PETROL = 'var(--color-petrol)';
 const MOLE = 'var(--color-mole)';
 const MOLE_BELLY = 'var(--color-mole-belly)';

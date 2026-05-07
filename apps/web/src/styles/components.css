@@ -1,7 +1,3 @@
-/* TAPETAUPE — reusable UI components */
-
-/* ────────── Logo (bouncing TAPETAUPE wordmark) ────────── */
-
 .logo {
   font-family: var(--font-display);
   font-weight: 400;
@@ -41,8 +37,6 @@
     animation: none;
   }
 }
-
-/* ────────── Chunky button ────────── */
 
 .chunky-button {
   font-family: var(--font-display);
@@ -99,8 +93,6 @@
   background: rgb(255 255 255 / 95%);
 }
 
-/* ────────── Glass card ────────── */
-
 .glass-card {
   background: rgb(255 255 255 / 92%);
   border: 2px solid rgb(44 95 124 / 15%);
@@ -111,8 +103,6 @@
   box-shadow: 0 4px 0 rgb(44 95 124 / 20%);
 }
 
-/* ────────── Caption (uppercase label) ────────── */
-
 .caption {
   font-family: var(--font-ui);
   font-size: 11px;
@@ -122,8 +112,6 @@
   color: var(--color-petrol);
   opacity: 0.7;
 }
-
-/* ────────── Big score (HUD) ────────── */
 
 .big-score {
   font-family: var(--font-ui);
@@ -137,8 +125,6 @@
   text-shadow: 0 4px 0 var(--color-petrol);
   paint-order: stroke fill;
 }
-
-/* ────────── Lives (hearts) ────────── */
 
 .lives {
   display: flex;
@@ -158,8 +144,6 @@
   }
 }
 
-/* ────────── Timer bar ────────── */
-
 .timer-bar {
   width: 100%;
   height: 12px;
@@ -175,8 +159,6 @@
   transition: width 0.3s linear;
 }
 
-/* ────────── Combo meter ────────── */
-
 .combo-meter {
   font-family: var(--font-display);
   color: var(--color-mole);
@@ -189,8 +171,6 @@
 .combo-meter--hidden {
   visibility: hidden;
 }
-
-/* ────────── Stat card ────────── */
 
 .stat-card {
   display: flex;

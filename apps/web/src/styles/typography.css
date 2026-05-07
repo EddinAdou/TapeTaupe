@@ -1,5 +1,3 @@
-/* Typography baseline — fonts loaded via <link> in index.html */
-
 :root {
   font-family: var(--font-ui);
   color: var(--color-petrol);

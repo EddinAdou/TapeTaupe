@@ -1,5 +1,3 @@
-/* Minimal screen layout — visual styling comes in sub-steps 1.4–1.6 */
-
 .screen {
   position: relative;
   z-index: 1;
@@ -32,8 +30,6 @@
   gap: var(--space-3);
   justify-content: center;
 }
-
-/* ────────── Home screen ────────── */
 
 .screen-home {
   justify-content: flex-start;
@@ -179,8 +175,6 @@
   }
 }
 
-/* Buttons (chunky 3D solides per DESIGN.md) */
-
 .btn {
   padding: var(--space-4) var(--space-6);
   border-radius: var(--radius-button);
@@ -203,8 +197,6 @@
   box-shadow: 0 1px 0 var(--color-mole-shadow);
   transform: translateY(4px);
 }
-
-/* ────────── Game screen ────────── */
 
 .screen-game {
   justify-content: flex-start;
@@ -299,11 +291,6 @@
   }
 }
 
-/* ────────── Playfield (grid of sand holes) ──────────
- * Mirrors the proto pattern: gridTemplateRows + cols use repeat(N, 1fr)
- * so cells stretch to fill the playfield's flex:1 area. No fixed aspect-ratio.
- */
-
 .playfield {
   width: 100%;
   max-width: 1080px;
@@ -362,7 +349,6 @@
   height: auto;
 }
 
-/* Game: hide right palm on mobile so it doesn't overlap the board */
 @media (max-width: 767px) {
   body[data-screen='game'] .tt-scene-palm--right {
     display: none;

@@ -11,7 +11,6 @@ import { renderStandardMole } from '../scene/characters';
 import { renderSandHole } from '../scene/sand-hole';
 import { setScreen } from '../screen-manager';
 
-// Phase 1.5 placeholder values — real game state arrives in Phase 2.
 const PLACEHOLDER_SCORE = 0;
 const PLACEHOLDER_LIVES = 3;
 const PLACEHOLDER_LEVEL = 1;
@@ -21,9 +20,9 @@ const PLACEHOLDER_TIMER_PROGRESS = 1;
 type Viewport = 'mobile' | 'tablet' | 'desktop';
 
 const HOLES_BY_VIEWPORT: Record<Viewport, number> = {
-  mobile: 9, // 3×3
-  tablet: 16, // 4×4
-  desktop: 20, // 5×4
+  mobile: 9,
+  tablet: 16,
+  desktop: 20,
 };
 
 function detectViewport(): Viewport {
@@ -33,7 +32,6 @@ function detectViewport(): Viewport {
 }
 
 function pickDemoMoleCells(holeCount: number): Set<number> {
-  // Show 2 mascots roughly in the middle so the screen looks alive in Phase 1.
   const a = Math.floor(holeCount / 3);
   const b = Math.floor((holeCount * 2) / 3);
   return new Set([a, b]);

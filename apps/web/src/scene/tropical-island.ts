@@ -1,8 +1,3 @@
-/* TAPETAUPE — Tropical island scene
- * Layered backdrop ported from the Claude Design proto.
- * Pure SVG strings for each piece, assembled into a single mounted DOM tree.
- */
-
 const PETROL = 'var(--color-petrol)';
 const SUN = 'var(--color-sun)';
 const SUN_CHEEK = 'var(--color-sun-cheek)';
@@ -16,8 +11,6 @@ const COCONUT_LIGHT = 'var(--color-coconut-light)';
 const MOLE_BELLY = 'var(--color-mole-belly)';
 const MOLE = 'var(--color-mole)';
 const TREASURE = 'var(--color-treasure)';
-
-// ────────── Sun (with optional cartoon face) ──────────
 
 function buildSun(withFace = true): string {
   const rays = Array.from({ length: 12 }, (_, i) => {
@@ -55,8 +48,6 @@ function buildSun(withFace = true): string {
   `;
 }
 
-// ────────── Cloud (single organic puffy shape) ──────────
-
 function buildCloud(): string {
   return `
     <svg viewBox="0 0 140 80">
@@ -70,8 +61,6 @@ function buildCloud(): string {
     </svg>
   `;
 }
-
-// ────────── Frond (palm leaf with sway) ──────────
 
 function buildFrond(
   cx: number,
@@ -88,7 +77,6 @@ function buildFrond(
   const w = length * 0.32;
   const perpX = -Math.sin(rad) * w;
   const perpY = Math.cos(rad) * w;
-
   const midX = cx + (tipX - cx) * 0.5;
   const midY = cy + (tipY - cy) * 0.5;
 
@@ -105,8 +93,6 @@ function buildFrond(
     </g>
   `;
 }
-
-// ────────── Palm tree ──────────
 
 function buildPalmTree(coconuts = true): string {
   const fronds = [
@@ -149,8 +135,6 @@ function buildPalmTree(coconuts = true): string {
   `;
 }
 
-// ────────── Sea (turquoise band with two animated wave lines) ──────────
-
 function buildSea(): string {
   return `
     <svg viewBox="0 0 1600 100" preserveAspectRatio="none">
@@ -163,8 +147,6 @@ function buildSea(): string {
   `;
 }
 
-// ────────── Wind streak (puff line crossing the sky) ──────────
-
 function buildWindStreak(length: number): string {
   return `
     <svg width="${length}" height="14" viewBox="0 0 ${length} 14">
@@ -175,8 +157,6 @@ function buildWindStreak(length: number): string {
     </svg>
   `;
 }
-
-// ────────── Bird (V-shape with flapping wings) ──────────
 
 function buildBird(): string {
   return `
@@ -189,8 +169,6 @@ function buildBird(): string {
     </svg>
   `;
 }
-
-// ────────── Beach details ──────────
 
 function buildShell(color: string): string {
   return `
@@ -231,8 +209,6 @@ function buildFootprint(): string {
     </svg>
   `;
 }
-
-// ────────── Render the full scene ──────────
 
 export function renderScene(): HTMLElement {
   const wrapper = document.createElement('div');
