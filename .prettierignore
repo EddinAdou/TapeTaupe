@@ -1,0 +1,10 @@
+node_modules
+dist
+.wrangler
+bun.lock
+TAPETAUPE
+ADR.md
+CLAUDE.md
+DESIGN.md
+HANDOFF.md
+IMPLEMENTATION_PLAN.md
