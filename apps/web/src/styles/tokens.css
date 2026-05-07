@@ -1,0 +1,62 @@
+/* TAPETAUPE design tokens — locked, see DESIGN.md */
+
+:root {
+  /* Color palette (tropical island, locked) */
+  --color-sky: #5bc0eb;
+  --color-sky-light: #a0d8f0;
+  --color-sea: #3ddbd9;
+  --color-sand: #f4d679;
+  --color-sand-dark: #d4a85a;
+  --color-sand-shadow: #a88440;
+  --color-sun: #ffd93d;
+  --color-mole: #ff6b35;
+  --color-mole-belly: #ffb088;
+  --color-mole-shadow: #c44a1f;
+  --color-treasure: #f4a623;
+  --color-speed: #c1272d;
+  --color-bomb: #3d3d3d;
+  --color-foliage: #6baa75;
+  --color-petrol: #2c5f7c;
+  --color-cloud: #ffffff;
+  --color-coconut: #5a3a24;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Border radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-button: 14px;
+  --radius-card: 16px;
+
+  /* Typography */
+  --font-display: 'Lilita One', 'Nunito', system-ui, sans-serif;
+  --font-ui: 'Nunito', system-ui, -apple-system, sans-serif;
+
+  --text-display-xl: 72px;
+  --text-display-l: 56px;
+  --text-display-m: 32px;
+  --text-heading: 22px;
+  --text-body-large: 16px;
+  --text-body: 14px;
+  --text-caption: 11px;
+
+  /* Easing */
+  --ease-bouncy: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* Layout */
+  --safe-padding-mobile: 16px;
+  --safe-padding-tablet: 24px;
+  --safe-padding-desktop: 32px;
+  --container-max: 1280px;
+}

@@ -1,0 +1,46 @@
+/* Typography baseline — fonts loaded via <link> in index.html */
+
+:root {
+  font-family: var(--font-ui);
+  color: var(--color-petrol);
+  font-feature-settings: 'tnum' 1;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.text-display-xl {
+  font-size: var(--text-display-xl);
+}
+.text-display-l {
+  font-size: var(--text-display-l);
+}
+.text-display-m {
+  font-size: var(--text-display-m);
+}
+.text-heading {
+  font-size: var(--text-heading);
+  font-weight: 800;
+}
+.text-body-large {
+  font-size: var(--text-body-large);
+  font-weight: 700;
+}
+.text-body {
+  font-size: var(--text-body);
+  font-weight: 600;
+}
+.text-caption {
+  font-size: var(--text-caption);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
