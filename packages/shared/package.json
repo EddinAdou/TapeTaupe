@@ -9,6 +9,9 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "echo 'configured in Phase 0 step 4'"
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
   }
 }

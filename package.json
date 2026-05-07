@@ -9,10 +9,10 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:web": "bun --filter @tapetaupe/web dev",
-    "dev:api": "bun --filter @tapetaupe/api dev",
-    "build": "bun --filter '*' run build",
-    "typecheck": "bun --filter '*' run typecheck",
+    "dev:web": "bun run --filter='@tapetaupe/web' dev",
+    "dev:api": "bun run --filter='@tapetaupe/api' dev",
+    "build": "bun run --filter='*' build",
+    "typecheck": "bun run --filter='*' typecheck",
     "lint": "echo 'lint not configured yet (Phase 0 step 5)'",
     "format": "echo 'format not configured yet (Phase 0 step 5)'"
   }
