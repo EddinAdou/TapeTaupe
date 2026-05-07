@@ -1,0 +1,28 @@
+{
+  "lockfileVersion": 1,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "tapetaupe",
+    },
+    "apps/api": {
+      "name": "@tapetaupe/api",
+      "version": "0.0.0",
+    },
+    "apps/web": {
+      "name": "@tapetaupe/web",
+      "version": "0.0.0",
+    },
+    "packages/shared": {
+      "name": "@tapetaupe/shared",
+      "version": "0.0.0",
+    },
+  },
+  "packages": {
+    "@tapetaupe/api": ["@tapetaupe/api@workspace:apps/api"],
+
+    "@tapetaupe/shared": ["@tapetaupe/shared@workspace:packages/shared"],
+
+    "@tapetaupe/web": ["@tapetaupe/web@workspace:apps/web"],
+  }
+}

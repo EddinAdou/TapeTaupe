@@ -1,0 +1,19 @@
+{
+  "name": "tapetaupe",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Whack-a-mole arcade game (vanilla TS + Cloudflare Workers)",
+  "packageManager": "bun@1.3.11",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "bun --filter @tapetaupe/web dev",
+    "dev:api": "bun --filter @tapetaupe/api dev",
+    "build": "bun --filter '*' run build",
+    "typecheck": "bun --filter '*' run typecheck",
+    "lint": "echo 'lint not configured yet (Phase 0 step 5)'",
+    "format": "echo 'format not configured yet (Phase 0 step 5)'"
+  }
+}

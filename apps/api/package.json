@@ -1,0 +1,11 @@
+{
+  "name": "@tapetaupe/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'configured in Phase 0 step 3'",
+    "build": "echo 'configured in Phase 0 step 3'",
+    "typecheck": "echo 'configured in Phase 0 step 3'"
+  }
+}
