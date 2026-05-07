@@ -165,8 +165,8 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 54%;
-  height: 8%;
+  top: 56%;
+  height: 5%;
 }
 
 .tt-scene-sea svg {
@@ -180,7 +180,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 62%;
+  top: 61%;
   bottom: 0;
   background: var(--color-sand);
   box-shadow: inset 0 4px 0 rgb(212 168 90 / 30%);
@@ -543,6 +543,14 @@
   transform-origin: center;
   transform-box: fill-box;
   animation: ttStarSpin 30s linear infinite;
+}
+
+/* ────────── Per-screen overrides ────────── */
+
+/* Home: cleaner backdrop — no right palm, no beach details */
+body[data-screen='home'] .tt-scene-palm--right,
+body[data-screen='home'] .tt-scene-detail {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

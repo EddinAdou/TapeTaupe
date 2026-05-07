@@ -22,6 +22,7 @@ export function setScreen(name: ScreenName): void {
   if (!mountPoint) throw new Error('initScreens must be called before setScreen');
   if (current === name) return;
   current = name;
+  document.body.dataset.screen = name;
   mountPoint.replaceChildren(renderers[name]());
 }
 
