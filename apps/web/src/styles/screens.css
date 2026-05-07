@@ -210,6 +210,11 @@
   justify-content: flex-start;
   gap: var(--space-3);
   padding-top: var(--safe-padding-mobile);
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
@@ -294,55 +299,60 @@
   }
 }
 
-/* ────────── Playfield (grid of sand holes) ────────── */
+/* ────────── Playfield (grid of sand holes) ──────────
+ * Mirrors the proto pattern: gridTemplateRows + cols use repeat(N, 1fr)
+ * so cells stretch to fill the playfield's flex:1 area. No fixed aspect-ratio.
+ */
 
 .playfield {
   width: 100%;
   max-width: 1080px;
   flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-2);
-  align-content: center;
-  justify-items: center;
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
+  padding: 6px;
 }
 
 @media (min-width: 768px) {
   .playfield {
     grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-3);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 10px;
+    padding: 10px;
   }
 }
 
 @media (min-width: 1280px) {
   .playfield {
     grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 14px;
+    padding: 16px;
   }
 }
 
 .playfield__cell {
   position: relative;
-  width: 100%;
-  aspect-ratio: 5 / 4;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  min-width: 0;
+  min-height: 0;
 }
 
 .playfield__cell .sand-hole {
   position: absolute;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
-  height: auto;
+  height: 100%;
 }
 
 .playfield__mole {
   position: absolute;
-  bottom: 12px;
+  bottom: 10%;
   left: 50%;
   transform: translateX(-50%);
-  width: 70%;
+  width: 60%;
   display: flex;
   justify-content: center;
 }

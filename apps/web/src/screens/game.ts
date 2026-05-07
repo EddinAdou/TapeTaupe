@@ -17,9 +17,27 @@ const PLACEHOLDER_LIVES = 3;
 const PLACEHOLDER_LEVEL = 1;
 const PLACEHOLDER_COMBO = 0;
 const PLACEHOLDER_TIMER_PROGRESS = 1;
-const PLACEHOLDER_HOLE_COUNT = 16;
-// Show a couple of moles in fixed cells so the screen looks alive in Phase 1.
-const DEMO_MOLE_CELLS = new Set<number>([5, 9]);
+
+type Viewport = 'mobile' | 'tablet' | 'desktop';
+
+const HOLES_BY_VIEWPORT: Record<Viewport, number> = {
+  mobile: 9, // 3×3
+  tablet: 16, // 4×4
+  desktop: 20, // 5×4
+};
+
+function detectViewport(): Viewport {
+  if (globalThis.matchMedia('(min-width: 1280px)').matches) return 'desktop';
+  if (globalThis.matchMedia('(min-width: 768px)').matches) return 'tablet';
+  return 'mobile';
+}
+
+function pickDemoMoleCells(holeCount: number): Set<number> {
+  // Show 2 mascots roughly in the middle so the screen looks alive in Phase 1.
+  const a = Math.floor(holeCount / 3);
+  const b = Math.floor((holeCount * 2) / 3);
+  return new Set([a, b]);
+}
 
 function renderHud(): HTMLElement {
   return renderGlassCard(
@@ -47,13 +65,13 @@ function renderHud(): HTMLElement {
   );
 }
 
-function renderHole(index: number): HTMLElement {
+function renderHole(index: number, demoMoles: Set<number>): HTMLElement {
   const cell = el('div', {
     class: 'playfield__cell',
     'data-hole': String(index),
   });
-  cell.append(renderSandHole(220, 100));
-  if (DEMO_MOLE_CELLS.has(index)) {
+  cell.append(renderSandHole());
+  if (demoMoles.has(index)) {
     const mole = el('div', { class: 'playfield__mole' }, [renderStandardMole(110)]);
     cell.append(mole);
   }
@@ -61,17 +79,19 @@ function renderHole(index: number): HTMLElement {
 }
 
 function renderPlayfield(holeCount: number): HTMLElement {
+  const demoMoles = pickDemoMoleCells(holeCount);
   const grid = el('div', { class: 'playfield' });
   for (let i = 0; i < holeCount; i++) {
-    grid.append(renderHole(i));
+    grid.append(renderHole(i, demoMoles));
   }
   return grid;
 }
 
 export function renderGame(): HTMLElement {
+  const holeCount = HOLES_BY_VIEWPORT[detectViewport()];
   return el('section', { class: 'screen screen-game' }, [
     renderHud(),
-    renderPlayfield(PLACEHOLDER_HOLE_COUNT),
+    renderPlayfield(holeCount),
     renderChunkyButton({
       label: t('game.button.quit'),
       variant: 'secondary',
