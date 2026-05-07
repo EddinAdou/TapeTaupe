@@ -18,6 +18,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "deploy:api": "bun run --filter='@tapetaupe/api' deploy",
+    "deploy:web": "bun run --filter='@tapetaupe/web' build && wrangler pages deploy apps/web/dist --project-name=tapetaupe --branch=main --commit-dirty=true",
     "prepare": "husky"
   },
   "lint-staged": {
