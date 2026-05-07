@@ -5,7 +5,7 @@ type Variant = 'primary' | 'secondary';
 interface ChunkyButtonOpts {
   label: string;
   variant?: Variant;
-  icon?: HTMLElement | null;
+  icon?: Element | null;
   onClick?: () => void;
   ariaLabel?: string;
 }

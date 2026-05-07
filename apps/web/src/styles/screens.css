@@ -33,6 +33,141 @@
   justify-content: center;
 }
 
+/* ────────── Home screen ────────── */
+
+.screen-home {
+  justify-content: flex-start;
+  gap: var(--space-4);
+}
+
+.home__topbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.home__version {
+  border-radius: 999px;
+  padding: 8px 16px;
+}
+
+.home__hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 520px;
+  padding: 0 var(--space-2);
+}
+
+.home__tagline {
+  font-weight: 800;
+  font-size: clamp(13px, 2.2vw, 18px);
+  color: var(--color-petrol);
+  opacity: 0.85;
+  text-align: center;
+  line-height: 1.4;
+  max-width: 420px;
+}
+
+.home__tagline-duration {
+  color: var(--color-mole);
+  font-weight: 900;
+}
+
+.home__mascot {
+  position: relative;
+  width: 220px;
+  height: 180px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.home__mascot .sand-hole {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.home__mascot-mole {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: ttMascotBob 1.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes ttMascotBob {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home__mascot-mole {
+    animation: none;
+  }
+}
+
+.home__stats {
+  width: 100%;
+  max-width: 520px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.home__ctas {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 768px) {
+  .home__hero {
+    max-width: 640px;
+  }
+  .home__mascot {
+    width: 260px;
+    height: 200px;
+  }
+  .home__ctas {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1280px) {
+  .home__hero {
+    max-width: 720px;
+    gap: var(--space-5);
+  }
+  .home__mascot {
+    width: 300px;
+    height: 220px;
+  }
+  .home__stats {
+    max-width: 640px;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .home__ctas {
+    max-width: 640px;
+  }
+}
+
 /* Buttons (chunky 3D solides per DESIGN.md) */
 
 .btn {
