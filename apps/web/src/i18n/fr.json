@@ -1,0 +1,18 @@
+{
+  "home.title": "TAPETAUPE",
+  "home.subtitle": "Tape les taupes, esquive les bombes",
+  "home.button.play": "JOUER",
+  "home.button.leaderboard": "CLASSEMENT",
+  "home.bestScore": "MEILLEUR SCORE",
+
+  "game.score": "SCORE",
+  "game.level": "NIVEAU",
+  "game.time": "TEMPS",
+  "game.combo": "COMBO",
+  "game.button.quit": "QUITTER",
+
+  "gameover.title": "PARTIE TERMINÉE",
+  "gameover.finalScore": "SCORE FINAL",
+  "gameover.button.replay": "REJOUER",
+  "gameover.button.home": "ACCUEIL"
+}

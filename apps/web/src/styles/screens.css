@@ -1,0 +1,73 @@
+/* Minimal screen layout — visual styling comes in sub-steps 1.4–1.6 */
+
+.screen {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: var(--safe-padding-mobile);
+}
+
+@media (min-width: 768px) {
+  .screen {
+    padding: var(--safe-padding-tablet);
+  }
+}
+
+@media (min-width: 1280px) {
+  .screen {
+    padding: var(--safe-padding-desktop);
+  }
+}
+
+.screen-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+}
+
+/* Buttons (chunky 3D solides per DESIGN.md) */
+
+.btn {
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-button);
+  background: var(--color-cloud);
+  border: 2px solid var(--color-petrol);
+  color: var(--color-petrol);
+  font-family: var(--font-display);
+  cursor: pointer;
+  transition: transform 0.1s var(--ease-out);
+}
+
+.btn-primary {
+  background: var(--color-mole);
+  color: var(--color-cloud);
+  border: none;
+  box-shadow: 0 5px 0 var(--color-mole-shadow);
+}
+
+.btn-primary:active {
+  box-shadow: 0 1px 0 var(--color-mole-shadow);
+  transform: translateY(4px);
+}
+
+/* Game HUD */
+
+.hud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  justify-content: center;
+}
+
+.board {
+  width: min(80vmin, 700px);
+  height: min(60vmin, 500px);
+  background: var(--color-sand);
+  border: 4px solid var(--color-petrol);
+  border-radius: var(--radius-lg);
+}

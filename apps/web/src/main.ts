@@ -1,12 +1,10 @@
 import './styles/reset.css';
 import './styles/tokens.css';
 import './styles/typography.css';
+import './styles/screens.css';
 
-const app = document.querySelector<HTMLDivElement>('#app');
+import { query } from './dom';
+import { initScreens } from './screen-manager';
 
-if (app) {
-  app.innerHTML = `
-    <h1 class="font-display text-display-l">TAPETAUPE</h1>
-    <p class="text-body">Phase 1.1 — design tokens loaded</p>
-  `;
-}
+const root = query<HTMLDivElement>('#app');
+initScreens(root, 'home');
