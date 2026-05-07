@@ -1,6 +1,8 @@
 /* Minimal screen layout — visual styling comes in sub-steps 1.4–1.6 */
 
 .screen {
+  position: relative;
+  z-index: 1;
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
@@ -9,6 +11,7 @@
   justify-content: center;
   gap: var(--space-5);
   padding: var(--safe-padding-mobile);
+  background: transparent;
 }
 
 @media (min-width: 768px) {
