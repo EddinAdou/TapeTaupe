@@ -5,10 +5,11 @@ import { el } from '../dom';
 import { t } from '../i18n';
 import { renderStandardMole } from '../scene/characters';
 import { renderSandHole } from '../scene/sand-hole';
+import type { ScreenInstance } from '../screen-manager';
 import { setScreen } from '../screen-manager';
 
-export function renderHome(): HTMLElement {
-  return el('section', { class: 'screen screen-home' }, [
+export function renderHome(): ScreenInstance {
+  const element = el('section', { class: 'screen screen-home' }, [
     el('div', { class: 'home__topbar' }, [
       el('div', { class: 'glass-card home__version' }, [
         el('span', { class: 'caption' }, [t('home.version')]),
@@ -53,4 +54,5 @@ export function renderHome(): HTMLElement {
       }),
     ]),
   ]);
+  return { element };
 }

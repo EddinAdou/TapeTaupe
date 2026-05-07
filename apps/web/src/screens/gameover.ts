@@ -5,6 +5,7 @@ import { renderChunkyButton, renderPlayTriangle } from '../components/chunky-but
 import { renderGlassCard } from '../components/glass-card';
 import { el } from '../dom';
 import { t } from '../i18n';
+import type { ScreenInstance } from '../screen-manager';
 import { setScreen } from '../screen-manager';
 
 const PLACEHOLDER = {
@@ -20,8 +21,8 @@ function renderPill(text: string): HTMLElement {
   return renderGlassCard([renderCaption(text)], 'gameover__pill');
 }
 
-export function renderGameOver(): HTMLElement {
-  return el('section', { class: 'screen screen-gameover' }, [
+export function renderGameOver(): ScreenInstance {
+  const element = el('section', { class: 'screen screen-gameover' }, [
     el('div', { class: 'gameover__topbar' }, [
       renderPill(t('gameover.pill.over')),
       renderPill(`${t('gameover.pill.level')} · ${PLACEHOLDER.level}`),
@@ -53,4 +54,5 @@ export function renderGameOver(): HTMLElement {
       }),
     ]),
   ]);
+  return { element };
 }

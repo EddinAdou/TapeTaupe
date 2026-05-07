@@ -9,6 +9,7 @@ import { el } from '../dom';
 import { t } from '../i18n';
 import { renderStandardMole } from '../scene/characters';
 import { renderSandHole } from '../scene/sand-hole';
+import type { ScreenInstance } from '../screen-manager';
 import { setScreen } from '../screen-manager';
 
 const PLACEHOLDER_SCORE = 0;
@@ -85,9 +86,9 @@ function renderPlayfield(holeCount: number): HTMLElement {
   return grid;
 }
 
-export function renderGame(): HTMLElement {
+export function renderGame(): ScreenInstance {
   const holeCount = HOLES_BY_VIEWPORT[detectViewport()];
-  return el('section', { class: 'screen screen-game' }, [
+  const element = el('section', { class: 'screen screen-game' }, [
     renderHud(),
     renderPlayfield(holeCount),
     renderChunkyButton({
@@ -96,4 +97,5 @@ export function renderGame(): HTMLElement {
       onClick: () => setScreen('gameover'),
     }),
   ]);
+  return { element };
 }
