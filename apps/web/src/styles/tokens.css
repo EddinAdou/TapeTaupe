@@ -42,9 +42,9 @@
   --font-display: 'Lilita One', 'Nunito', system-ui, sans-serif;
   --font-ui: 'Nunito', system-ui, -apple-system, sans-serif;
 
-  --text-display-xl: 72px;
-  --text-display-l: 56px;
-  --text-display-m: 32px;
+  --text-display-xl: clamp(48px, 12vw, 72px);
+  --text-display-l: clamp(36px, 10vw, 56px);
+  --text-display-m: clamp(24px, 6vw, 32px);
   --text-heading: 22px;
   --text-body-large: 16px;
   --text-body: 14px;
