@@ -12,11 +12,13 @@
   "home.button.howto": "COMMENT JOUER",
   "home.button.leaderboard": "CLASSEMENT",
 
-  "game.score": "SCORE",
-  "game.level": "NIVEAU",
-  "game.time": "TEMPS",
-  "game.combo": "COMBO",
+  "game.score": "Score",
+  "game.level": "Niveau",
+  "game.time": "Temps",
+  "game.combo": "Combo",
+  "game.lives": "Vies",
   "game.button.quit": "QUITTER",
+  "game.button.pause": "PAUSE",
 
   "gameover.title": "PARTIE TERMINÉE",
   "gameover.finalScore": "SCORE FINAL",
