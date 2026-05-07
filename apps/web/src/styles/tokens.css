@@ -16,9 +16,12 @@
   --color-speed: #c1272d;
   --color-bomb: #3d3d3d;
   --color-foliage: #6baa75;
+  --color-foliage-dark: #4f8a5a;
   --color-petrol: #2c5f7c;
   --color-cloud: #ffffff;
   --color-coconut: #5a3a24;
+  --color-coconut-light: #7a4f32;
+  --color-sun-cheek: #ff8866;
 
   /* Spacing scale */
   --space-1: 4px;
