@@ -1,0 +1,149 @@
+/* TAPETAUPE — reusable UI components */
+
+/* ────────── Logo (bouncing TAPETAUPE wordmark) ────────── */
+
+.logo {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(48px, 12vw, 96px);
+  letter-spacing: 0.01em;
+  line-height: 0.95;
+  text-shadow: 0 5px 0 rgb(44 95 124 / 18%);
+  -webkit-text-stroke: 2px var(--color-petrol);
+  paint-order: stroke fill;
+  user-select: none;
+  text-align: center;
+  display: inline-block;
+}
+
+.logo__letter {
+  display: inline-block;
+  color: var(--color-petrol);
+  animation: ttLetterBounce 2.4s ease-in-out infinite;
+}
+
+.logo__letter--orange {
+  color: var(--color-mole);
+}
+
+@keyframes ttLetterBounce {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--rot, 0deg));
+  }
+  50% {
+    transform: translateY(-7px) rotate(calc(var(--rot, 0deg) * -1));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo__letter {
+    animation: none;
+  }
+}
+
+/* ────────── Chunky button ────────── */
+
+.chunky-button {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 20px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 16px;
+  padding: 18px 36px;
+  border: 3px solid var(--color-petrol);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  line-height: 1;
+  transition:
+    transform 90ms var(--ease-bouncy),
+    box-shadow 90ms ease-out;
+}
+
+.chunky-button--primary {
+  background: var(--color-mole);
+  color: var(--color-cloud);
+  box-shadow:
+    0 6px 0 var(--color-mole-shadow),
+    inset 0 0 0 3px rgb(255 255 255 / 18%);
+}
+
+.chunky-button--primary:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 0 var(--color-mole-shadow),
+    inset 0 0 0 3px rgb(255 255 255 / 18%);
+}
+
+.chunky-button--primary:active {
+  transform: translateY(5px);
+  box-shadow:
+    0 1px 0 var(--color-mole-shadow),
+    inset 0 0 0 3px rgb(255 255 255 / 18%);
+}
+
+.chunky-button--secondary {
+  background: rgb(255 255 255 / 85%);
+  color: var(--color-petrol);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.chunky-button--secondary:hover {
+  background: rgb(255 255 255 / 95%);
+}
+
+/* ────────── Glass card ────────── */
+
+.glass-card {
+  background: rgb(255 255 255 / 92%);
+  border: 2px solid rgb(44 95 124 / 15%);
+  border-radius: 16px;
+  padding: 16px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 0 rgb(44 95 124 / 20%);
+}
+
+/* ────────── Caption (uppercase label) ────────── */
+
+.caption {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-petrol);
+  opacity: 0.7;
+}
+
+/* ────────── Stat card ────────── */
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+}
+
+.stat-card__value {
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: 26px;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.stat-card__value--primary {
+  color: var(--color-mole);
+}
+
+.stat-card__value--text {
+  color: var(--color-petrol);
+}

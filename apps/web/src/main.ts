@@ -2,6 +2,7 @@ import './styles/reset.css';
 import './styles/tokens.css';
 import './styles/typography.css';
 import './styles/scene.css';
+import './styles/components.css';
 import './styles/screens.css';
 
 import { query } from './dom';
