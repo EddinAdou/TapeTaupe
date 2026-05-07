@@ -4,8 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "echo 'configured in Phase 0 step 3'",
-    "build": "echo 'configured in Phase 0 step 3'",
-    "typecheck": "echo 'configured in Phase 0 step 3'"
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "wrangler deploy --dry-run --outdir=dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.18"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260507.1",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.88.0"
   }
 }

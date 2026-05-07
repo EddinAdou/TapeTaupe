@@ -1,0 +1,13 @@
+name = "tapetaupe-api"
+main = "src/index.ts"
+compatibility_date = "2025-12-01"
+account_id = "a9b0957c6e6fb78f5bb8327deb75ffbd"
+
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tapetaupe-db"
+database_id = "a32e4297-553e-4d42-ad01-683b86a71b5a"
+migrations_dir = "drizzle/migrations"
