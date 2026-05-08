@@ -301,6 +301,7 @@
   grid-template-rows: repeat(3, 1fr);
   gap: 6px;
   padding: 6px;
+  touch-action: manipulation;
 }
 
 @media (min-width: 768px) {
