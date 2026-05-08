@@ -1,6 +1,7 @@
 import type { ActiveMole, GameConfig, GameState } from '@tapetaupe/shared';
 import { createInitialState } from '@tapetaupe/shared';
 
+import { applyHit, applyMiss } from './scoring';
 import { addMole, expireMoles, pickEmptyHole, spawnConfigForLevel } from './spawn';
 import { isOver, tickTime } from './time';
 
@@ -96,9 +97,23 @@ export function createGame(config: GameConfig, options: CreateGameOptions = {}):
     rafId = requestAnimationFrame(loop);
   };
 
-  const tap = (_holeIndex: number, _x: number, _y: number): void => {
+  const tap = (holeIndex: number, _x: number, _y: number): void => {
     if (state.status !== 'playing') return;
     state.taps += 1;
+    const moleIndex = state.activeMoles.findIndex((m) => m.holeIndex === holeIndex);
+    if (moleIndex === -1) {
+      applyMiss(state);
+    } else {
+      const mole = state.activeMoles[moleIndex];
+      if (mole === undefined) return;
+      applyHit(state, mole);
+      state.activeMoles.splice(moleIndex, 1);
+    }
+    if (isOver(state)) {
+      state.status = 'game_over';
+      stop();
+    }
+    notify();
   };
 
   const subscribe = (listener: GameListener): (() => void) => {
