@@ -4,39 +4,43 @@ import { renderCaption } from '../components/caption';
 import { renderChunkyButton, renderPlayTriangle } from '../components/chunky-button';
 import { renderGlassCard } from '../components/glass-card';
 import { el } from '../dom';
+import { getLastGameStats, type LastGameStats } from '../game/last-game';
 import { t } from '../i18n';
+import type { ScreenInstance } from '../screen-manager';
 import { setScreen } from '../screen-manager';
 
-const PLACEHOLDER = {
-  score: 1240,
-  level: 3,
-  hits: 28,
-  accuracy: 87,
-  maxCombo: 12,
-  bombsHit: 1,
+const DEFAULT_STATS: LastGameStats = {
+  score: 0,
+  level: 1,
+  hits: 0,
+  accuracy: 0,
+  maxCombo: 0,
+  bombsHit: 0,
 };
 
 function renderPill(text: string): HTMLElement {
   return renderGlassCard([renderCaption(text)], 'gameover__pill');
 }
 
-export function renderGameOver(): HTMLElement {
-  return el('section', { class: 'screen screen-gameover' }, [
+export function renderGameOver(): ScreenInstance {
+  const stats = getLastGameStats() ?? DEFAULT_STATS;
+
+  const element = el('section', { class: 'screen screen-gameover' }, [
     el('div', { class: 'gameover__topbar' }, [
       renderPill(t('gameover.pill.over')),
-      renderPill(`${t('gameover.pill.level')} · ${PLACEHOLDER.level}`),
+      renderPill(`${t('gameover.pill.level')} · ${stats.level}`),
     ]),
 
     el('div', { class: 'gameover__hero' }, [
       el('p', { class: 'gameover__headline' }, [t('gameover.headline')]),
-      renderBigScore(PLACEHOLDER.score, { size: 'xl' }),
+      renderBigScore(stats.score, { size: 'xl' }),
     ]),
 
     el('div', { class: 'gameover__stats' }, [
-      renderBigStat(t('gameover.stat.hits'), PLACEHOLDER.hits, 'success'),
-      renderBigStat(t('gameover.stat.accuracy'), `${PLACEHOLDER.accuracy}%`, 'text'),
-      renderBigStat(t('gameover.stat.combo'), `×${PLACEHOLDER.maxCombo}`, 'primary'),
-      renderBigStat(t('gameover.stat.bombs'), PLACEHOLDER.bombsHit, 'speed'),
+      renderBigStat(t('gameover.stat.hits'), stats.hits, 'success'),
+      renderBigStat(t('gameover.stat.accuracy'), `${stats.accuracy}%`, 'text'),
+      renderBigStat(t('gameover.stat.combo'), `×${stats.maxCombo}`, 'primary'),
+      renderBigStat(t('gameover.stat.bombs'), stats.bombsHit, 'speed'),
     ]),
 
     el('div', { class: 'gameover__ctas' }, [
@@ -53,4 +57,5 @@ export function renderGameOver(): HTMLElement {
       }),
     ]),
   ]);
+  return { element };
 }
