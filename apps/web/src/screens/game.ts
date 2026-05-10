@@ -17,6 +17,7 @@ import {
   playBombShake,
   playEmerge,
   playKill,
+  playLevelUp,
   playParticleBurst,
   playPulse,
   playScorePopup,
@@ -504,6 +505,7 @@ export function renderGame(): ScreenInstance {
 
   let redirecting = false;
   let prevBoost = -1;
+  let prevLevelForOverlay = game.state.level;
 
   const updateBoostIndicator = (state: Readonly<GameState>): void => {
     if (state.boostHitsLeft === prevBoost) return;
@@ -544,6 +546,10 @@ export function renderGame(): ScreenInstance {
   const unsubscribe = game.subscribe((state) => {
     hud.applyUpdate(state);
     updateBoostIndicator(state);
+    if (state.level > prevLevelForOverlay) {
+      playLevelUp(element, state.level);
+      prevLevelForOverlay = state.level;
+    }
     syncMoles(state);
     if (state.status === 'game_over' && !redirecting) {
       redirecting = true;

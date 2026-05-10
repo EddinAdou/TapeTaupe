@@ -128,6 +128,97 @@ export function playPulse(element: HTMLElement): void {
   );
 }
 
+const CONFETTI_COUNT = 50;
+const LEVEL_UP_DURATION_MS = 1500;
+const CONFETTI_COLORS = [
+  'var(--color-mole)',
+  'var(--color-treasure)',
+  'var(--color-foliage)',
+  'var(--color-speed)',
+  'var(--color-mole-belly)',
+  'var(--color-sea)',
+];
+
+export function playLevelUp(parent: HTMLElement, level: number): void {
+  if (prefersReducedMotion()) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'level-up-overlay';
+  parent.append(overlay);
+
+  for (let i = 0; i < CONFETTI_COUNT; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'level-up-overlay__confetti';
+    const x = Math.random() * 100;
+    const size = 8 + Math.random() * 8;
+    const rot = Math.random() * 360;
+    confetti.style.left = `${x.toFixed(1)}%`;
+    confetti.style.width = `${size.toFixed(1)}px`;
+    confetti.style.height = `${(size * 0.5).toFixed(1)}px`;
+    confetti.style.background = CONFETTI_COLORS[i % CONFETTI_COLORS.length] ?? 'var(--color-mole)';
+    overlay.append(confetti);
+    confetti.animate(
+      [
+        { transform: `translateY(-20px) rotate(${rot.toFixed(0)}deg)`, opacity: 1 },
+        {
+          transform: `translateY(100vh) rotate(${(rot + 720).toFixed(0)}deg)`,
+          opacity: 1,
+          offset: 0.9,
+        },
+        {
+          transform: `translateY(100vh) rotate(${(rot + 720).toFixed(0)}deg)`,
+          opacity: 0,
+          offset: 1,
+        },
+      ],
+      {
+        duration: LEVEL_UP_DURATION_MS,
+        delay: Math.random() * 300,
+        easing: 'linear',
+        fill: 'forwards',
+      },
+    );
+  }
+
+  const textContainer = document.createElement('div');
+  textContainer.className = 'level-up-overlay__text';
+  const heading = document.createElement('div');
+  heading.className = 'level-up-overlay__heading';
+  heading.textContent = 'NIVEAU';
+  const value = document.createElement('div');
+  value.className = 'level-up-overlay__value tabular';
+  value.textContent = String(level);
+  textContainer.append(heading, value);
+  overlay.append(textContainer);
+  textContainer.animate(
+    [
+      {
+        transform: 'translate(-50%, -50%) scale(0)',
+        opacity: 0,
+        easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      },
+      {
+        transform: 'translate(-50%, -50%) scale(1.2)',
+        opacity: 1,
+        offset: 0.2,
+        easing: 'cubic-bezier(0.4, 0, 0.6, 1)',
+      },
+      {
+        transform: 'translate(-50%, -50%) scale(1)',
+        opacity: 1,
+        offset: 0.7,
+        easing: 'cubic-bezier(0.4, 0, 0.6, 1)',
+      },
+      { transform: 'translate(-50%, -50%) scale(0)', opacity: 0 },
+    ],
+    {
+      duration: LEVEL_UP_DURATION_MS,
+      fill: 'forwards',
+    },
+  );
+
+  setTimeout(() => overlay.remove(), LEVEL_UP_DURATION_MS + 100);
+}
+
 const REST_TRANSFORM = 'translateX(-50%) translateY(0) scale(1)';
 const HIDDEN_TRANSFORM = 'translateX(-50%) translateY(60%) scale(0)';
 const PEAK_TRANSFORM = 'translateX(-50%) translateY(15%) scale(1.05)';
