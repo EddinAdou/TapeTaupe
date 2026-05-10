@@ -10,9 +10,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tapetaupe/shared": "workspace:*"
+    "@tapetaupe/shared": "workspace:*",
+    "howler": "^2.2.4"
   },
   "devDependencies": {
+    "@types/howler": "^2.2.12",
     "@types/node": "^25.6.1",
     "typescript": "^6.0.3",
     "vite": "^8.0.11"

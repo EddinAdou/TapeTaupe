@@ -15,16 +15,23 @@ interface AudioGlobal {
 }
 
 const SFX_PATHS: Record<SoundType, string> = {
-  hitStandard: '/audio/hit-standard.mp3',
-  hitGolden: '/audio/hit-golden.mp3',
-  hitSpeedy: '/audio/hit-speedy.mp3',
-  miss: '/audio/miss.mp3',
-  bomb: '/audio/bomb.mp3',
-  levelUp: '/audio/level-up.mp3',
-  gameOver: '/audio/game-over.mp3',
+  hitStandard: '/audio/hit-standard.ogg',
+  hitGolden: '/audio/hit-golden.ogg',
+  hitSpeedy: '/audio/hit-speedy.ogg',
+  miss: '/audio/miss.ogg',
+  bomb: '/audio/bomb.ogg',
+  levelUp: '/audio/level-up.ogg',
+  gameOver: '/audio/game-over.ogg',
 };
 
-const MUSIC_PATH = '/audio/music-loop.mp3';
+const MUSIC_TRACKS = [
+  '/audio/music-1.mp3',
+  '/audio/music-2.mp3',
+  '/audio/music-3.mp3',
+  '/audio/music-4.mp3',
+  '/audio/music-5.mp3',
+  '/audio/music-6.mp3',
+];
 const SFX_VOLUME = 0.5;
 const MUSIC_VOLUME = 0.3;
 
@@ -63,31 +70,32 @@ function getSfx(type: SoundType): SfxEntry {
   return entry;
 }
 
-let musicHowl: Howl | null = null;
-let musicFailed = false;
+const musicCache = new Map<string, Howl>();
+let currentMusic: Howl | null = null;
 
-function getMusic(): Howl | null {
-  if (musicFailed) return null;
-  if (musicHowl) return musicHowl;
+function getMusicHowl(src: string): Howl {
+  const cached = musicCache.get(src);
+  if (cached) return cached;
   const h = new Howl({
-    src: [MUSIC_PATH],
+    src: [src],
     loop: true,
     volume: 0,
     preload: true,
-    onloaderror: () => {
-      musicFailed = true;
-      musicHowl = null;
-    },
   });
-  musicHowl = h;
+  musicCache.set(src, h);
   return h;
+}
+
+function pickRandomTrack(): string {
+  const idx = Math.floor(Math.random() * MUSIC_TRACKS.length);
+  return MUSIC_TRACKS[idx] ?? MUSIC_TRACKS[0] ?? '';
 }
 
 export function setMuted(value: boolean): void {
   muted = value;
-  if (musicHowl) {
-    if (value) musicHowl.pause();
-    else musicHowl.play();
+  if (currentMusic) {
+    if (value) currentMusic.pause();
+    else currentMusic.play();
   }
 }
 
@@ -97,19 +105,21 @@ export function isMuted(): boolean {
 
 export function startMusic(): void {
   if (muted) return;
-  const h = getMusic();
-  if (!h) return;
+  if (currentMusic && currentMusic.playing()) return;
+  const track = pickRandomTrack();
+  if (!track) return;
+  const h = getMusicHowl(track);
   if (!h.playing()) h.play();
-  h.fade(h.volume(), MUSIC_VOLUME, 600);
+  h.fade(0, MUSIC_VOLUME, 600);
+  currentMusic = h;
 }
 
 export function stopMusic(fadeMs = 400): void {
-  if (!musicHowl) return;
-  const h = musicHowl;
+  if (!currentMusic) return;
+  const h = currentMusic;
+  currentMusic = null;
   h.fade(h.volume(), 0, fadeMs);
-  setTimeout(() => {
-    if (musicHowl === h) h.stop();
-  }, fadeMs);
+  setTimeout(() => h.stop(), fadeMs);
 }
 
 function blip(type: OscillatorType, freq: number, durationMs: number, peak = 0.3): void {
