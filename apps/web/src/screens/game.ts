@@ -13,6 +13,8 @@ import { renderTimerBar, variantForProgress } from '../components/timer-bar';
 import { el } from '../dom';
 import {
   type ParticleAccent,
+  playBombFlash,
+  playBombShake,
   playEmerge,
   playKill,
   playParticleBurst,
@@ -448,6 +450,9 @@ export function renderGame(): ScreenInstance {
   const { root: playfield, cells, stages } = buildPlayfield(holeCount);
   const moleNodes = new Map<number, { node: HTMLElement; emerge: Animation | null }>();
 
+  const screenClass = `screen screen-game${isMobile ? ' screen-game--mobile' : ''}`;
+  const element = el('section', { class: screenClass }, [...hud.pre, playfield, ...hud.post]);
+
   const handlePointerDown = (event: PointerEvent): void => {
     const target = event.target;
     if (!(target instanceof Element)) return;
@@ -463,14 +468,13 @@ export function renderGame(): ScreenInstance {
       playScorePopup(stage, `+${result.points}`, popupAccent);
       playParticleBurst(stage, particleAccentForType(result.type));
     } else if (result.outcome === 'bomb') {
-      playScorePopup(stage, '−1', 'danger');
+      playScorePopup(stage, '−1 VIE', 'danger');
       playParticleBurst(stage, 'danger');
+      playBombShake(element);
+      playBombFlash(element);
     }
   };
   playfield.addEventListener('pointerdown', handlePointerDown);
-
-  const screenClass = `screen screen-game${isMobile ? ' screen-game--mobile' : ''}`;
-  const element = el('section', { class: screenClass }, [...hud.pre, playfield, ...hud.post]);
 
   let redirecting = false;
 

@@ -800,6 +800,15 @@
   will-change: transform, opacity;
 }
 
+.bomb-flash {
+  position: absolute;
+  inset: 0;
+  background: var(--color-speed);
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0;
+}
+
 @media (max-width: 767px) {
   body[data-screen='game'] .tt-scene-palm--right,
   body[data-screen='game'] .tt-scene-palm--left {

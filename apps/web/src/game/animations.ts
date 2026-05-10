@@ -78,6 +78,40 @@ export function playParticleBurst(parent: HTMLElement, accent: ParticleAccent): 
     .catch(() => burst.remove());
 }
 
+const SHAKE_AMPLITUDE_PX = 8;
+const SHAKE_STEPS = 16;
+const SHAKE_DURATION_MS = 480;
+
+export function playBombShake(element: HTMLElement): void {
+  if (prefersReducedMotion()) return;
+  const keyframes: Keyframe[] = [];
+  for (let i = 0; i < SHAKE_STEPS; i++) {
+    const decay = 1 - i / SHAKE_STEPS;
+    const x = (Math.random() - 0.5) * 2 * SHAKE_AMPLITUDE_PX * decay;
+    const y = (Math.random() - 0.5) * 2 * SHAKE_AMPLITUDE_PX * decay;
+    keyframes.push({ transform: `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)` });
+  }
+  keyframes.push({ transform: 'translate(0, 0)' });
+  element.animate(keyframes, {
+    duration: SHAKE_DURATION_MS,
+    easing: 'linear',
+    fill: 'forwards',
+  });
+}
+
+export function playBombFlash(parent: HTMLElement): void {
+  if (prefersReducedMotion()) return;
+  const flash = document.createElement('div');
+  flash.className = 'bomb-flash';
+  parent.append(flash);
+  const animation = flash.animate([{ opacity: 0 }, { opacity: 0.3, offset: 0.2 }, { opacity: 0 }], {
+    duration: 300,
+    easing: 'cubic-bezier(0.4, 0, 0.6, 1)',
+    fill: 'forwards',
+  });
+  animation.addEventListener('finish', () => flash.remove());
+}
+
 const REST_TRANSFORM = 'translateX(-50%) translateY(0) scale(1)';
 const HIDDEN_TRANSFORM = 'translateX(-50%) translateY(60%) scale(0)';
 const PEAK_TRANSFORM = 'translateX(-50%) translateY(15%) scale(1.05)';
