@@ -780,6 +780,41 @@
   color: var(--color-speed);
 }
 
+.score-popup--primary {
+  color: var(--color-mole);
+}
+
+.boost-indicator {
+  display: none;
+  position: absolute;
+  top: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  border-radius: 12px;
+  background: var(--color-mole);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 0 var(--color-mole-shadow);
+  z-index: 30;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.boost-indicator--active {
+  display: inline-block;
+}
+
+@media (max-width: 767px) {
+  .boost-indicator {
+    top: 200px;
+  }
+}
+
 .particle-burst {
   position: absolute;
   left: 50%;

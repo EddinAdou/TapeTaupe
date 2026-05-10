@@ -450,8 +450,15 @@ export function renderGame(): ScreenInstance {
   const { root: playfield, cells, stages } = buildPlayfield(holeCount);
   const moleNodes = new Map<number, { node: HTMLElement; emerge: Animation | null }>();
 
+  const boostIndicator = el('div', { class: 'boost-indicator' });
+
   const screenClass = `screen screen-game${isMobile ? ' screen-game--mobile' : ''}`;
-  const element = el('section', { class: screenClass }, [...hud.pre, playfield, ...hud.post]);
+  const element = el('section', { class: screenClass }, [
+    ...hud.pre,
+    playfield,
+    ...hud.post,
+    boostIndicator,
+  ]);
 
   const handlePointerDown = (event: PointerEvent): void => {
     const target = event.target;
@@ -464,7 +471,8 @@ export function renderGame(): ScreenInstance {
     const stage = stages[holeIndex];
     if (!stage) return;
     if (result.outcome === 'hit' && result.points > 0 && result.type !== null) {
-      const popupAccent = result.type === 'golden' ? 'gold' : 'success';
+      const popupAccent =
+        result.type === 'golden' ? 'gold' : result.boosted ? 'primary' : 'success';
       playScorePopup(stage, `+${result.points}`, popupAccent);
       playParticleBurst(stage, particleAccentForType(result.type));
     } else if (result.outcome === 'bomb') {
@@ -477,6 +485,18 @@ export function renderGame(): ScreenInstance {
   playfield.addEventListener('pointerdown', handlePointerDown);
 
   let redirecting = false;
+  let prevBoost = -1;
+
+  const updateBoostIndicator = (state: Readonly<GameState>): void => {
+    if (state.boostHitsLeft === prevBoost) return;
+    prevBoost = state.boostHitsLeft;
+    if (state.boostHitsLeft > 0) {
+      boostIndicator.classList.add('boost-indicator--active');
+      boostIndicator.textContent = `×2 boost · ${state.boostHitsLeft} restants`;
+    } else {
+      boostIndicator.classList.remove('boost-indicator--active');
+    }
+  };
 
   const syncMoles = (state: Readonly<GameState>): void => {
     const liveIds = new Set<number>();
@@ -505,6 +525,7 @@ export function renderGame(): ScreenInstance {
 
   const unsubscribe = game.subscribe((state) => {
     hud.applyUpdate(state);
+    updateBoostIndicator(state);
     syncMoles(state);
     if (state.status === 'game_over' && !redirecting) {
       redirecting = true;

@@ -1,7 +1,7 @@
 import type { ActiveMole, GameConfig, GameState, MoleType } from '@tapetaupe/shared';
 import { createInitialState } from '@tapetaupe/shared';
 
-import { applyHit, applyMiss, computeLevel, pointsForType } from './scoring';
+import { applyHit, applyMiss, computeLevel } from './scoring';
 import {
   addMole,
   expireMoles,
@@ -21,9 +21,10 @@ export interface TapResult {
   outcome: TapOutcome;
   points: number;
   type: MoleType | null;
+  boosted: boolean;
 }
 
-const IDLE_RESULT: TapResult = { outcome: 'idle', points: 0, type: null };
+const IDLE_RESULT: TapResult = { outcome: 'idle', points: 0, type: null, boosted: false };
 
 export interface Game {
   readonly state: Readonly<GameState>;
@@ -124,7 +125,7 @@ export function createGame(config: GameConfig, options: CreateGameOptions = {}):
     let result: TapResult;
     if (moleIndex === -1) {
       applyMiss(state);
-      result = { outcome: 'miss', points: 0, type: null };
+      result = { outcome: 'miss', points: 0, type: null, boosted: false };
     } else {
       const mole = state.activeMoles[moleIndex];
       if (mole === undefined) {
@@ -132,13 +133,13 @@ export function createGame(config: GameConfig, options: CreateGameOptions = {}):
         return IDLE_RESULT;
       }
       const moleType = mole.type;
-      applyHit(state, mole);
+      const hit = applyHit(state, mole);
       state.activeMoles.splice(moleIndex, 1);
       state.level = computeLevel(state.score);
       result =
         moleType === 'bomb'
-          ? { outcome: 'bomb', points: 0, type: 'bomb' }
-          : { outcome: 'hit', points: pointsForType(moleType), type: moleType };
+          ? { outcome: 'bomb', points: 0, type: 'bomb', boosted: false }
+          : { outcome: 'hit', points: hit.earned, type: moleType, boosted: hit.boosted };
     }
     if (isOver(state)) {
       state.status = 'game_over';

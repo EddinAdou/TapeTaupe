@@ -2,7 +2,7 @@ function prefersReducedMotion(): boolean {
   return globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-export type ScorePopupAccent = 'success' | 'gold' | 'danger';
+export type ScorePopupAccent = 'success' | 'gold' | 'primary' | 'danger';
 
 export function playScorePopup(parent: HTMLElement, value: string, accent: ScorePopupAccent): void {
   const popup = document.createElement('div');

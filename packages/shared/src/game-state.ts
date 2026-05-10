@@ -29,6 +29,7 @@ export interface GameState {
   hits: number;
   misses: number;
   bombsHit: number;
+  boostHitsLeft: number;
   hitsByType: Record<MoleType, number>;
   timeLeftMs: number;
   startedAt: number | null;
@@ -48,6 +49,7 @@ export function createInitialState(config: GameConfig): GameState {
     hits: 0,
     misses: 0,
     bombsHit: 0,
+    boostHitsLeft: 0,
     hitsByType: { standard: 0, golden: 0, speedy: 0, bomb: 0 },
     timeLeftMs: config.gameDurationMs,
     startedAt: null,
