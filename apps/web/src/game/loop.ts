@@ -1,17 +1,35 @@
-import type { ActiveMole, GameConfig, GameState } from '@tapetaupe/shared';
+import type { ActiveMole, GameConfig, GameState, MoleType } from '@tapetaupe/shared';
 import { createInitialState } from '@tapetaupe/shared';
 
-import { applyHit, applyMiss } from './scoring';
-import { addMole, expireMoles, pickEmptyHole, spawnConfigForLevel } from './spawn';
+import { applyHit, applyMiss, pointsForType } from './scoring';
+import {
+  addMole,
+  expireMoles,
+  lifetimeForType,
+  pickEmptyHole,
+  pickMoleType,
+  spawnConfigForLevel,
+  spawnWeightsForLevel,
+} from './spawn';
 import { isOver, tickTime } from './time';
 
 export type GameListener = (state: Readonly<GameState>) => void;
+
+export type TapOutcome = 'idle' | 'miss' | 'hit' | 'bomb';
+
+export interface TapResult {
+  outcome: TapOutcome;
+  points: number;
+  type: MoleType | null;
+}
+
+const IDLE_RESULT: TapResult = { outcome: 'idle', points: 0, type: null };
 
 export interface Game {
   readonly state: Readonly<GameState>;
   start(): void;
   stop(): void;
-  tap(holeIndex: number, x: number, y: number): void;
+  tap(holeIndex: number, x: number, y: number): TapResult;
   subscribe(listener: GameListener): () => void;
 }
 
@@ -60,7 +78,9 @@ export function createGame(config: GameConfig, options: CreateGameOptions = {}):
       scheduleNextSpawn(currentTime, state.level);
       return;
     }
-    addMole(state, holeIndex, 'standard', currentTime, cfg.lifetimeMs, nextMoleId++);
+    const type = pickMoleType(spawnWeightsForLevel(state.level), rand);
+    const lifetime = lifetimeForType(type, state.level, rand);
+    addMole(state, holeIndex, type, currentTime, lifetime, nextMoleId++);
     scheduleNextSpawn(currentTime, state.level);
   };
 
@@ -97,23 +117,34 @@ export function createGame(config: GameConfig, options: CreateGameOptions = {}):
     rafId = requestAnimationFrame(loop);
   };
 
-  const tap = (holeIndex: number, _x: number, _y: number): void => {
-    if (state.status !== 'playing') return;
+  const tap = (holeIndex: number, _x: number, _y: number): TapResult => {
+    if (state.status !== 'playing') return IDLE_RESULT;
     state.taps += 1;
     const moleIndex = state.activeMoles.findIndex((m) => m.holeIndex === holeIndex);
+    let result: TapResult;
     if (moleIndex === -1) {
       applyMiss(state);
+      result = { outcome: 'miss', points: 0, type: null };
     } else {
       const mole = state.activeMoles[moleIndex];
-      if (mole === undefined) return;
+      if (mole === undefined) {
+        notify();
+        return IDLE_RESULT;
+      }
+      const moleType = mole.type;
       applyHit(state, mole);
       state.activeMoles.splice(moleIndex, 1);
+      result =
+        moleType === 'bomb'
+          ? { outcome: 'bomb', points: 0, type: 'bomb' }
+          : { outcome: 'hit', points: pointsForType(moleType), type: moleType };
     }
     if (isOver(state)) {
       state.status = 'game_over';
       stop();
     }
     notify();
+    return result;
   };
 
   const subscribe = (listener: GameListener): (() => void) => {

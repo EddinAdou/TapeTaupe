@@ -2,6 +2,31 @@ function prefersReducedMotion(): boolean {
   return globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+export type ScorePopupAccent = 'success' | 'gold' | 'danger';
+
+export function playScorePopup(parent: HTMLElement, value: string, accent: ScorePopupAccent): void {
+  const popup = document.createElement('div');
+  popup.className = `score-popup score-popup--${accent}`;
+  popup.textContent = value;
+  parent.append(popup);
+  if (prefersReducedMotion()) {
+    setTimeout(() => popup.remove(), 800);
+    return;
+  }
+  const animation = popup.animate(
+    [
+      { transform: 'translate(-50%, 0) scale(1)', opacity: 1 },
+      { transform: 'translate(-50%, -42px) scale(1.18)', opacity: 0 },
+    ],
+    {
+      duration: 700,
+      easing: 'cubic-bezier(0.4, 0, 0.6, 1)',
+      fill: 'forwards',
+    },
+  );
+  animation.addEventListener('finish', () => popup.remove());
+}
+
 const REST_TRANSFORM = 'translateX(-50%) translateY(0) scale(1)';
 const HIDDEN_TRANSFORM = 'translateX(-50%) translateY(60%) scale(0)';
 const PEAK_TRANSFORM = 'translateX(-50%) translateY(15%) scale(1.05)';
