@@ -22,7 +22,7 @@ import {
   playPulse,
   playScorePopup,
 } from '../game/animations';
-import { playSound, type SoundType } from '../game/audio';
+import { playSound, type SoundType, startMusic, stopMusic } from '../game/audio';
 import { setLastGameStats } from '../game/last-game';
 import { createGame, type TapResult } from '../game/loop';
 import { t } from '../i18n';
@@ -575,8 +575,10 @@ export function renderGame(): ScreenInstance {
   });
 
   game.start();
+  startMusic();
 
   const cleanup = (): void => {
+    stopMusic();
     unsubscribe();
     game.stop();
     playfield.removeEventListener('pointerdown', handlePointerDown);

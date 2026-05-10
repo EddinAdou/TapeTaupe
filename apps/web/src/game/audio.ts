@@ -1,3 +1,5 @@
+import { Howl } from 'howler';
+
 export type SoundType =
   | 'hitStandard'
   | 'hitGolden'
@@ -12,6 +14,20 @@ interface AudioGlobal {
   webkitAudioContext?: typeof AudioContext;
 }
 
+const SFX_PATHS: Record<SoundType, string> = {
+  hitStandard: '/audio/hit-standard.mp3',
+  hitGolden: '/audio/hit-golden.mp3',
+  hitSpeedy: '/audio/hit-speedy.mp3',
+  miss: '/audio/miss.mp3',
+  bomb: '/audio/bomb.mp3',
+  levelUp: '/audio/level-up.mp3',
+  gameOver: '/audio/game-over.mp3',
+};
+
+const MUSIC_PATH = '/audio/music-loop.mp3';
+const SFX_VOLUME = 0.5;
+const MUSIC_VOLUME = 0.3;
+
 let audioContext: AudioContext | null = null;
 let muted = false;
 
@@ -24,17 +40,81 @@ function getContext(): AudioContext | null {
   return audioContext;
 }
 
+interface SfxEntry {
+  howl: Howl;
+  failed: boolean;
+}
+
+const sfxCache = new Map<SoundType, SfxEntry>();
+
+function getSfx(type: SoundType): SfxEntry {
+  const cached = sfxCache.get(type);
+  if (cached) return cached;
+  const entry: SfxEntry = { howl: null as unknown as Howl, failed: false };
+  entry.howl = new Howl({
+    src: [SFX_PATHS[type]],
+    volume: SFX_VOLUME,
+    preload: true,
+    onloaderror: () => {
+      entry.failed = true;
+    },
+  });
+  sfxCache.set(type, entry);
+  return entry;
+}
+
+let musicHowl: Howl | null = null;
+let musicFailed = false;
+
+function getMusic(): Howl | null {
+  if (musicFailed) return null;
+  if (musicHowl) return musicHowl;
+  const h = new Howl({
+    src: [MUSIC_PATH],
+    loop: true,
+    volume: 0,
+    preload: true,
+    onloaderror: () => {
+      musicFailed = true;
+      musicHowl = null;
+    },
+  });
+  musicHowl = h;
+  return h;
+}
+
 export function setMuted(value: boolean): void {
   muted = value;
+  if (musicHowl) {
+    if (value) musicHowl.pause();
+    else musicHowl.play();
+  }
 }
 
 export function isMuted(): boolean {
   return muted;
 }
 
+export function startMusic(): void {
+  if (muted) return;
+  const h = getMusic();
+  if (!h) return;
+  if (!h.playing()) h.play();
+  h.fade(h.volume(), MUSIC_VOLUME, 600);
+}
+
+export function stopMusic(fadeMs = 400): void {
+  if (!musicHowl) return;
+  const h = musicHowl;
+  h.fade(h.volume(), 0, fadeMs);
+  setTimeout(() => {
+    if (musicHowl === h) h.stop();
+  }, fadeMs);
+}
+
 function blip(type: OscillatorType, freq: number, durationMs: number, peak = 0.3): void {
   const ctx = getContext();
-  if (!ctx || muted) return;
+  if (!ctx) return;
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   osc.type = type;
@@ -57,7 +137,7 @@ function sweep(
   peak = 0.3,
 ): void {
   const ctx = getContext();
-  if (!ctx || muted) return;
+  if (!ctx) return;
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   osc.type = type;
@@ -75,7 +155,7 @@ function sweep(
 
 function arpeggio(type: OscillatorType, freqs: number[], noteDurationMs: number, peak = 0.3): void {
   const ctx = getContext();
-  if (!ctx || muted) return;
+  if (!ctx) return;
   const noteDuration = noteDurationMs / 1000;
   for (const [i, freq] of freqs.entries()) {
     const startTime = ctx.currentTime + i * noteDuration;
@@ -92,9 +172,9 @@ function arpeggio(type: OscillatorType, freqs: number[], noteDurationMs: number,
   }
 }
 
-function playBomb(): void {
+function playBombSynth(): void {
   const ctx = getContext();
-  if (!ctx || muted) return;
+  if (!ctx) return;
   const bufferSize = Math.floor(ctx.sampleRate * 0.3);
   const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
   const data = buffer.getChannelData(0);
@@ -110,7 +190,6 @@ function playBomb(): void {
   noiseGain.gain.linearRampToValueAtTime(0.3, now + 0.005);
   noiseGain.gain.linearRampToValueAtTime(0, now + 0.3);
   source.start(now);
-
   const osc = ctx.createOscillator();
   const oscGain = ctx.createGain();
   osc.type = 'sine';
@@ -124,7 +203,7 @@ function playBomb(): void {
   osc.stop(now + 0.35);
 }
 
-export function playSound(type: SoundType): void {
+function playSynth(type: SoundType): void {
   switch (type) {
     case 'hitStandard': {
       blip('square', 440, 80);
@@ -143,7 +222,7 @@ export function playSound(type: SoundType): void {
       return;
     }
     case 'bomb': {
-      playBomb();
+      playBombSynth();
       return;
     }
     case 'levelUp': {
@@ -155,4 +234,14 @@ export function playSound(type: SoundType): void {
       return;
     }
   }
+}
+
+export function playSound(type: SoundType): void {
+  if (muted) return;
+  const entry = getSfx(type);
+  if (entry.failed) {
+    playSynth(type);
+    return;
+  }
+  entry.howl.play();
 }
