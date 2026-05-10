@@ -22,8 +22,9 @@ import {
   playPulse,
   playScorePopup,
 } from '../game/animations';
+import { playSound, type SoundType } from '../game/audio';
 import { setLastGameStats } from '../game/last-game';
-import { createGame } from '../game/loop';
+import { createGame, type TapResult } from '../game/loop';
 import { t } from '../i18n';
 import {
   renderBomb,
@@ -80,6 +81,17 @@ function particleAccentForType(type: MoleType): ParticleAccent {
       return 'primary';
     }
   }
+}
+
+function soundForResult(result: TapResult): SoundType | null {
+  if (result.outcome === 'miss') return 'miss';
+  if (result.outcome === 'bomb') return 'bomb';
+  if (result.outcome === 'hit') {
+    if (result.type === 'golden') return 'hitGolden';
+    if (result.type === 'speedy') return 'hitSpeedy';
+    return 'hitStandard';
+  }
+  return null;
 }
 
 function detectViewport(): Viewport {
@@ -487,6 +499,8 @@ export function renderGame(): ScreenInstance {
     const holeIndex = Number(cell.dataset.hole);
     if (!Number.isInteger(holeIndex)) return;
     const result = game.tap(holeIndex, event.clientX, event.clientY);
+    const sound = soundForResult(result);
+    if (sound) playSound(sound);
     const stage = stages[holeIndex];
     if (!stage) return;
     if (result.outcome === 'hit' && result.points > 0 && result.type !== null) {
@@ -548,11 +562,13 @@ export function renderGame(): ScreenInstance {
     updateBoostIndicator(state);
     if (state.level > prevLevelForOverlay) {
       playLevelUp(element, state.level);
+      playSound('levelUp');
       prevLevelForOverlay = state.level;
     }
     syncMoles(state);
     if (state.status === 'game_over' && !redirecting) {
       redirecting = true;
+      playSound('gameOver');
       setLastGameStats(state);
       queueMicrotask(() => setScreen('gameover'));
     }
