@@ -225,6 +225,112 @@
   }
 }
 
+.screen-game--mobile {
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.mobile-hud {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+}
+
+.mobile-hud__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.mobile-hud__score-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+}
+
+.mobile-hud .big-score {
+  font-size: 36px;
+  -webkit-text-stroke: 2px var(--color-petrol);
+  text-shadow: 0 3px 0 var(--color-petrol);
+  margin-top: 2px;
+}
+
+.mobile-hud__right-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+
+.mobile-hud__level {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.mobile-hud__level-value {
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--color-petrol);
+  line-height: 1;
+}
+
+.mobile-hud__timer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mobile-hud__timer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.mobile-hud__timer-seconds {
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: 16px;
+  color: var(--color-petrol);
+  line-height: 1;
+}
+
+.mobile-hud__combo {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mobile-hud__combo--active {
+  display: flex;
+}
+
+.mobile-hud__combo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.mobile-hud__combo-value {
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: 16px;
+  color: var(--color-mole);
+  line-height: 1;
+}
+
+.mobile-hud__quit {
+  align-self: center;
+  font-size: 14px;
+  padding: 10px 22px;
+  flex: 0 0 auto;
+}
+
 .hud-rail {
   flex: 0 0 96px;
   min-width: 0;
@@ -451,34 +557,11 @@
   height: 100%;
 }
 
-.target-row__placeholder {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 2px solid var(--color-petrol);
-}
-
-.target-row__placeholder--golden {
-  background: var(--color-treasure);
-}
-
-.target-row__placeholder--speedy {
-  background: var(--color-speed);
-}
-
-.target-row__placeholder--bomb {
-  background: var(--color-bomb);
-}
-
 @media (min-width: 768px) {
   .target-row__icon {
     flex-basis: 36px;
     width: 36px;
     height: 36px;
-  }
-  .target-row__placeholder {
-    width: 28px;
-    height: 28px;
   }
 }
 
@@ -595,7 +678,16 @@
   cursor: pointer;
 }
 
-.playfield__cell .sand-hole {
+.playfield__hole-stage {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  aspect-ratio: 5 / 4;
+  pointer-events: none;
+}
+
+.playfield__hole-stage .sand-hole {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -604,10 +696,10 @@
 
 .playfield__cell-hint {
   position: absolute;
-  top: 4px;
-  left: 4px;
-  width: 18px;
-  height: 18px;
+  top: 6px;
+  left: 6px;
+  width: 22px;
+  height: 22px;
   display: grid;
   place-items: center;
   border-radius: 5px;
@@ -616,39 +708,76 @@
   color: var(--color-petrol);
   font-family: var(--font-ui);
   font-weight: 800;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1;
   pointer-events: none;
   z-index: 2;
   opacity: 0.85;
 }
 
-@media (min-width: 768px) {
-  .playfield__cell-hint {
-    width: 22px;
-    height: 22px;
-    font-size: 11px;
-    top: 6px;
-    left: 6px;
-  }
+.screen-game--mobile .playfield__cell-hint {
+  display: none;
 }
 
 .playfield__mole {
   position: absolute;
   left: 50%;
-  bottom: 8%;
-  width: 70%;
+  bottom: 10%;
+  width: 90%;
+  max-width: 110px;
   display: flex;
   justify-content: center;
   pointer-events: none;
   transform: translateX(-50%) translateY(0) scale(1);
   transform-origin: bottom center;
+  z-index: 2;
   will-change: transform;
+}
+
+@media (min-width: 768px) {
+  .playfield__mole {
+    max-width: 130px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .playfield__mole {
+    max-width: 140px;
+  }
 }
 
 .playfield__mole .mole {
   width: 100%;
   height: auto;
+}
+
+.score-popup {
+  position: absolute;
+  left: 50%;
+  top: 25%;
+  transform: translate(-50%, 0);
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-size: clamp(22px, 3.4vw, 32px);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5;
+  -webkit-text-stroke: 2px var(--color-petrol);
+  paint-order: stroke fill;
+}
+
+.score-popup--success {
+  color: var(--color-foliage-dark);
+}
+
+.score-popup--gold {
+  color: var(--color-treasure);
+}
+
+.score-popup--danger {
+  color: var(--color-speed);
 }
 
 @media (max-width: 767px) {

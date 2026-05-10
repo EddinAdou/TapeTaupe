@@ -1,4 +1,4 @@
-import type { GameConfig, GameState } from '@tapetaupe/shared';
+import type { GameConfig, GameState, MoleType } from '@tapetaupe/shared';
 
 import { renderBigScore } from '../components/big-score';
 import { renderCaption } from '../components/caption';
@@ -11,11 +11,16 @@ import { renderStatRow } from '../components/stat-row';
 import { renderTargetRow } from '../components/target-row';
 import { renderTimerBar, variantForProgress } from '../components/timer-bar';
 import { el } from '../dom';
-import { playEmerge, playKill } from '../game/animations';
+import { playEmerge, playKill, playScorePopup } from '../game/animations';
 import { setLastGameStats } from '../game/last-game';
 import { createGame } from '../game/loop';
 import { t } from '../i18n';
-import { renderStandardMole } from '../scene/characters';
+import {
+  renderBomb,
+  renderGoldenMole,
+  renderSpeedyMole,
+  renderStandardMole,
+} from '../scene/characters';
 import { renderSandHole } from '../scene/sand-hole';
 import type { ScreenInstance } from '../screen-manager';
 import { setScreen } from '../screen-manager';
@@ -30,14 +35,38 @@ const HOLES_BY_VIEWPORT: Record<Viewport, number> = {
 
 const INITIAL_LIVES = 3;
 const GAME_DURATION_MS = 60_000;
-const SCORE_DIGITS = 5;
-const MOLE_RENDER_SIZE = 110;
+const RAIL_SCORE_DIGITS = 5;
+const MOBILE_SCORE_DIGITS = 4;
+const MOLE_RENDER_SIZE = 140;
 const HOLE_HINT_COUNT = 9;
+
+function renderMoleByType(type: MoleType, size: number): HTMLElement {
+  switch (type) {
+    case 'standard': {
+      return renderStandardMole(size);
+    }
+    case 'golden': {
+      return renderGoldenMole(size);
+    }
+    case 'speedy': {
+      return renderSpeedyMole(size);
+    }
+    case 'bomb': {
+      return renderBomb(size);
+    }
+  }
+}
 
 function detectViewport(): Viewport {
   if (globalThis.matchMedia('(min-width: 1280px)').matches) return 'desktop';
   if (globalThis.matchMedia('(min-width: 768px)').matches) return 'tablet';
   return 'mobile';
+}
+
+interface Hud {
+  pre: HTMLElement[];
+  post: HTMLElement[];
+  applyUpdate: (state: Readonly<GameState>) => void;
 }
 
 interface ScoreCardRefs {
@@ -46,7 +75,7 @@ interface ScoreCardRefs {
 }
 
 function buildScoreCard(state: Readonly<GameState>): ScoreCardRefs {
-  const scoreEl = renderBigScore(state.score, { digits: SCORE_DIGITS });
+  const scoreEl = renderBigScore(state.score, { digits: RAIL_SCORE_DIGITS });
   const root = renderGlassCard(
     [renderCaption(t('game.score')), scoreEl],
     'hud-card hud-card--score',
@@ -152,75 +181,32 @@ function buildTargetsCard(): HTMLElement {
 
 interface StatsCardRefs {
   root: HTMLElement;
-  hitsEl: HTMLElement;
-  accuracyEl: HTMLElement;
-  comboEl: HTMLElement;
 }
 
 function buildStatsCard(state: Readonly<GameState>): StatsCardRefs {
   const accuracy = state.taps > 0 ? Math.round((state.hits / state.taps) * 100) : 0;
-  const hitsRow = renderStatRow(t('game.stat.hits'), state.hits);
-  const accuracyRow = renderStatRow(t('game.stat.accuracy'), `${accuracy}%`);
-  const comboRow = renderStatRow(t('game.stat.combo'), `×${state.comboMax}`);
   const root = renderGlassCard(
     [
       renderCaption(t('game.stats')),
-      el('div', { class: 'stat-rows' }, [hitsRow, accuracyRow, comboRow]),
+      el('div', { class: 'stat-rows' }, [
+        renderStatRow(t('game.stat.hits'), state.hits),
+        renderStatRow(t('game.stat.accuracy'), `${accuracy}%`),
+        renderStatRow(t('game.stat.combo'), `×${state.comboMax}`),
+      ]),
     ],
     'hud-card hud-card--stats',
   );
-  const hitsEl = hitsRow.querySelector<HTMLElement>('.stat-row__value');
-  const accuracyEl = accuracyRow.querySelector<HTMLElement>('.stat-row__value');
-  const comboEl = comboRow.querySelector<HTMLElement>('.stat-row__value');
-  if (!hitsEl || !accuracyEl || !comboEl) throw new Error('stat-row value missing');
-  return { root, hitsEl, accuracyEl, comboEl };
+  return { root };
 }
 
-function buildPlayfield(holeCount: number): { root: HTMLElement; cells: HTMLElement[] } {
-  const cells: HTMLElement[] = [];
-  const root = el('div', { class: 'playfield' });
-  for (let i = 0; i < holeCount; i++) {
-    const cell = el('div', { class: 'playfield__cell', 'data-hole': String(i) });
-    cell.append(renderSandHole());
-    if (i < HOLE_HINT_COUNT) {
-      cell.append(el('span', { class: 'playfield__cell-hint' }, [String(i + 1)]));
-    }
-    cells.push(cell);
-    root.append(cell);
-  }
-  return { root, cells };
-}
-
-export function renderGame(): ScreenInstance {
-  const holeCount = HOLES_BY_VIEWPORT[detectViewport()];
-  const config: GameConfig = {
-    holeCount,
-    initialLives: INITIAL_LIVES,
-    gameDurationMs: GAME_DURATION_MS,
-  };
-  const game = createGame(config);
-
-  const score = buildScoreCard(game.state);
-  const combo = buildComboCard(game.state);
-  const lives = buildLivesCard(game.state);
-  const level = buildLevelCard(game.state);
-  const timer = buildTimerCard(game.state);
+function buildRailsHud(state: Readonly<GameState>, quitButton: HTMLElement): Hud {
+  const score = buildScoreCard(state);
+  const level = buildLevelCard(state);
+  const timer = buildTimerCard(state);
   const targetsCard = buildTargetsCard();
-  const stats = buildStatsCard(game.state);
-
-  let livesCard = lives;
-  let comboCard = combo;
-  let statsCard = stats;
-
-  const quitButton = renderChunkyButton({
-    label: t('game.button.quit'),
-    variant: 'secondary',
-    onClick: () => {
-      setLastGameStats(game.state);
-      setScreen('gameover');
-    },
-  });
-  quitButton.classList.add('hud-card--quit');
+  let combo = buildComboCard(state);
+  let lives = buildLivesCard(state);
+  let stats = buildStatsCard(state);
 
   const leftRail = el('aside', { class: 'hud-rail hud-rail--left' }, [
     score.root,
@@ -235,7 +221,210 @@ export function renderGame(): ScreenInstance {
     quitButton,
   ]);
 
-  const { root: playfield, cells } = buildPlayfield(holeCount);
+  let prevScore = state.score;
+  let prevLives = state.lives;
+  let prevLevel = state.level;
+  let prevCombo = state.combo;
+  let prevHits = state.hits;
+  let prevTaps = state.taps;
+  let prevComboMax = state.comboMax;
+  let timerVariant = variantForProgress(state.timeLeftMs / state.config.gameDurationMs);
+  let lastSeconds = Math.ceil(state.timeLeftMs / 1000);
+
+  const applyUpdate = (next: Readonly<GameState>): void => {
+    if (next.score !== prevScore) {
+      score.scoreEl.textContent = String(next.score).padStart(RAIL_SCORE_DIGITS, '0');
+      level.fillEl.style.width = `${(levelProgress(next.score) * 100).toFixed(1)}%`;
+      prevScore = next.score;
+    }
+    if (next.lives !== prevLives) {
+      const updated = buildLivesCard(next);
+      lives.root.replaceWith(updated.root);
+      lives = updated;
+      prevLives = next.lives;
+    }
+    if (next.level !== prevLevel) {
+      level.valueEl.textContent = String(next.level);
+      prevLevel = next.level;
+    }
+    if (next.combo !== prevCombo) {
+      const updated = buildComboCard(next);
+      combo.root.replaceWith(updated.root);
+      combo = updated;
+      prevCombo = next.combo;
+    }
+    if (next.hits !== prevHits || next.taps !== prevTaps || next.comboMax !== prevComboMax) {
+      const updated = buildStatsCard(next);
+      stats.root.replaceWith(updated.root);
+      stats = updated;
+      prevHits = next.hits;
+      prevTaps = next.taps;
+      prevComboMax = next.comboMax;
+    }
+    const progress = Math.max(0, Math.min(1, next.timeLeftMs / next.config.gameDurationMs));
+    timer.fillEl.style.width = `${(progress * 100).toFixed(1)}%`;
+    const variant = variantForProgress(progress);
+    if (variant !== timerVariant) {
+      timer.fillEl.classList.remove(`timer-bar__fill--${timerVariant}`);
+      timer.fillEl.classList.add(`timer-bar__fill--${variant}`);
+      timerVariant = variant;
+    }
+    const seconds = Math.ceil(next.timeLeftMs / 1000);
+    if (seconds !== lastSeconds) {
+      timer.textEl.textContent = `${seconds}s`;
+      lastSeconds = seconds;
+    }
+  };
+
+  return { pre: [leftRail], post: [rightRail], applyUpdate };
+}
+
+function buildMobileHud(state: Readonly<GameState>, quitButton: HTMLElement): Hud {
+  const scoreEl = renderBigScore(state.score, { digits: MOBILE_SCORE_DIGITS });
+  let livesEl = renderLives(state.lives, state.config.initialLives);
+  const levelValueEl = el('span', { class: 'mobile-hud__level-value tabular' }, [
+    String(state.level),
+  ]);
+
+  const progress = state.timeLeftMs / state.config.gameDurationMs;
+  const seconds = Math.ceil(state.timeLeftMs / 1000);
+  const timerSecondsEl = el('span', { class: 'mobile-hud__timer-seconds tabular' }, [
+    `${seconds}s`,
+  ]);
+  const timerBar = renderTimerBar(progress);
+
+  const comboValueEl = el('span', { class: 'mobile-hud__combo-value tabular' }, [
+    `×${Math.max(1, state.combo)}`,
+  ]);
+  let comboDotsEl = renderComboDots(state.combo);
+  const comboBox = el(
+    'div',
+    {
+      class: `mobile-hud__combo${state.combo >= 2 ? ' mobile-hud__combo--active' : ''}`,
+    },
+    [
+      el('div', { class: 'mobile-hud__combo-header' }, [
+        renderCaption(t('game.combo')),
+        comboValueEl,
+      ]),
+      comboDotsEl,
+    ],
+  );
+
+  const topRow = el('div', { class: 'mobile-hud__top' }, [
+    el('div', { class: 'mobile-hud__score-block' }, [renderCaption(t('game.score')), scoreEl]),
+    el('div', { class: 'mobile-hud__right-block' }, [
+      livesEl,
+      el('div', { class: 'mobile-hud__level' }, [renderCaption(t('game.level')), levelValueEl]),
+    ]),
+  ]);
+  const timerSection = el('div', { class: 'mobile-hud__timer-section' }, [
+    el('div', { class: 'mobile-hud__timer-header' }, [
+      renderCaption(t('game.time')),
+      timerSecondsEl,
+    ]),
+    timerBar.root,
+  ]);
+
+  const topBar = renderGlassCard([topRow, timerSection, comboBox], 'mobile-hud');
+
+  let prevScore = state.score;
+  let prevLives = state.lives;
+  let prevLevel = state.level;
+  let prevCombo = state.combo;
+  let timerVariant = variantForProgress(progress);
+  let lastSeconds = seconds;
+
+  const applyUpdate = (next: Readonly<GameState>): void => {
+    if (next.score !== prevScore) {
+      scoreEl.textContent = String(next.score).padStart(MOBILE_SCORE_DIGITS, '0');
+      prevScore = next.score;
+    }
+    if (next.lives !== prevLives) {
+      const updated = renderLives(next.lives, next.config.initialLives);
+      livesEl.replaceWith(updated);
+      livesEl = updated;
+      prevLives = next.lives;
+    }
+    if (next.level !== prevLevel) {
+      levelValueEl.textContent = String(next.level);
+      prevLevel = next.level;
+    }
+    if (next.combo !== prevCombo) {
+      comboValueEl.textContent = `×${Math.max(1, next.combo)}`;
+      const updatedDots = renderComboDots(next.combo);
+      comboDotsEl.replaceWith(updatedDots);
+      comboDotsEl = updatedDots;
+      comboBox.classList.toggle('mobile-hud__combo--active', next.combo >= 2);
+      prevCombo = next.combo;
+    }
+    const p = Math.max(0, Math.min(1, next.timeLeftMs / next.config.gameDurationMs));
+    timerBar.fillEl.style.width = `${(p * 100).toFixed(1)}%`;
+    const variant = variantForProgress(p);
+    if (variant !== timerVariant) {
+      timerBar.fillEl.classList.remove(`timer-bar__fill--${timerVariant}`);
+      timerBar.fillEl.classList.add(`timer-bar__fill--${variant}`);
+      timerVariant = variant;
+    }
+    const s = Math.ceil(next.timeLeftMs / 1000);
+    if (s !== lastSeconds) {
+      timerSecondsEl.textContent = `${s}s`;
+      lastSeconds = s;
+    }
+  };
+
+  return { pre: [topBar], post: [quitButton], applyUpdate };
+}
+
+function buildPlayfield(holeCount: number): {
+  root: HTMLElement;
+  cells: HTMLElement[];
+  stages: HTMLElement[];
+} {
+  const cells: HTMLElement[] = [];
+  const stages: HTMLElement[] = [];
+  const root = el('div', { class: 'playfield' });
+  for (let i = 0; i < holeCount; i++) {
+    const cell = el('div', { class: 'playfield__cell', 'data-hole': String(i) });
+    const stage = el('div', { class: 'playfield__hole-stage' });
+    stage.append(renderSandHole());
+    cell.append(stage);
+    if (i < HOLE_HINT_COUNT) {
+      cell.append(el('span', { class: 'playfield__cell-hint' }, [String(i + 1)]));
+    }
+    cells.push(cell);
+    stages.push(stage);
+    root.append(cell);
+  }
+  return { root, cells, stages };
+}
+
+export function renderGame(): ScreenInstance {
+  const viewport = detectViewport();
+  const isMobile = viewport === 'mobile';
+  const holeCount = HOLES_BY_VIEWPORT[viewport];
+  const config: GameConfig = {
+    holeCount,
+    initialLives: INITIAL_LIVES,
+    gameDurationMs: GAME_DURATION_MS,
+  };
+  const game = createGame(config);
+
+  const quitButton = renderChunkyButton({
+    label: t('game.button.quit'),
+    variant: 'secondary',
+    onClick: () => {
+      setLastGameStats(game.state);
+      setScreen('gameover');
+    },
+  });
+  quitButton.classList.add(isMobile ? 'mobile-hud__quit' : 'hud-card--quit');
+
+  const hud = isMobile
+    ? buildMobileHud(game.state, quitButton)
+    : buildRailsHud(game.state, quitButton);
+
+  const { root: playfield, cells, stages } = buildPlayfield(holeCount);
   const moleNodes = new Map<number, { node: HTMLElement; emerge: Animation | null }>();
 
   const handlePointerDown = (event: PointerEvent): void => {
@@ -245,67 +434,22 @@ export function renderGame(): ScreenInstance {
     if (!cell || !playfield.contains(cell)) return;
     const holeIndex = Number(cell.dataset.hole);
     if (!Number.isInteger(holeIndex)) return;
-    game.tap(holeIndex, event.clientX, event.clientY);
+    const result = game.tap(holeIndex, event.clientX, event.clientY);
+    const stage = stages[holeIndex];
+    if (!stage) return;
+    if (result.outcome === 'hit' && result.points > 0) {
+      const accent = result.type === 'golden' ? 'gold' : 'success';
+      playScorePopup(stage, `+${result.points}`, accent);
+    } else if (result.outcome === 'bomb') {
+      playScorePopup(stage, '−1', 'danger');
+    }
   };
   playfield.addEventListener('pointerdown', handlePointerDown);
 
-  const element = el('section', { class: 'screen screen-game' }, [leftRail, playfield, rightRail]);
+  const screenClass = `screen screen-game${isMobile ? ' screen-game--mobile' : ''}`;
+  const element = el('section', { class: screenClass }, [...hud.pre, playfield, ...hud.post]);
 
-  let prevScore = game.state.score;
-  let prevLives = game.state.lives;
-  let prevLevel = game.state.level;
-  let prevCombo = game.state.combo;
-  let prevHits = game.state.hits;
-  let prevTaps = game.state.taps;
-  let prevComboMax = game.state.comboMax;
-  let timerVariant = variantForProgress(game.state.timeLeftMs / game.state.config.gameDurationMs);
-  let lastSeconds = Math.ceil(game.state.timeLeftMs / 1000);
   let redirecting = false;
-
-  const updateHud = (state: Readonly<GameState>): void => {
-    if (state.score !== prevScore) {
-      score.scoreEl.textContent = String(state.score).padStart(SCORE_DIGITS, '0');
-      level.fillEl.style.width = `${(levelProgress(state.score) * 100).toFixed(1)}%`;
-      prevScore = state.score;
-    }
-    if (state.lives !== prevLives) {
-      const next = buildLivesCard(state);
-      livesCard.root.replaceWith(next.root);
-      livesCard = next;
-      prevLives = state.lives;
-    }
-    if (state.level !== prevLevel) {
-      level.valueEl.textContent = String(state.level);
-      prevLevel = state.level;
-    }
-    if (state.combo !== prevCombo) {
-      const next = buildComboCard(state);
-      comboCard.root.replaceWith(next.root);
-      comboCard = next;
-      prevCombo = state.combo;
-    }
-    if (state.hits !== prevHits || state.taps !== prevTaps || state.comboMax !== prevComboMax) {
-      const next = buildStatsCard(state);
-      statsCard.root.replaceWith(next.root);
-      statsCard = next;
-      prevHits = state.hits;
-      prevTaps = state.taps;
-      prevComboMax = state.comboMax;
-    }
-    const progress = Math.max(0, Math.min(1, state.timeLeftMs / state.config.gameDurationMs));
-    timer.fillEl.style.width = `${(progress * 100).toFixed(1)}%`;
-    const variant = variantForProgress(progress);
-    if (variant !== timerVariant) {
-      timer.fillEl.classList.remove(`timer-bar__fill--${timerVariant}`);
-      timer.fillEl.classList.add(`timer-bar__fill--${variant}`);
-      timerVariant = variant;
-    }
-    const seconds = Math.ceil(state.timeLeftMs / 1000);
-    if (seconds !== lastSeconds) {
-      timer.textEl.textContent = `${seconds}s`;
-      lastSeconds = seconds;
-    }
-  };
 
   const syncMoles = (state: Readonly<GameState>): void => {
     const liveIds = new Set<number>();
@@ -314,7 +458,9 @@ export function renderGame(): ScreenInstance {
       if (moleNodes.has(mole.id)) continue;
       const cell = cells[mole.holeIndex];
       if (!cell) continue;
-      const node = el('div', { class: 'playfield__mole' }, [renderStandardMole(MOLE_RENDER_SIZE)]);
+      const node = el('div', { class: `playfield__mole playfield__mole--${mole.type}` }, [
+        renderMoleByType(mole.type, MOLE_RENDER_SIZE),
+      ]);
       cell.append(node);
       const emerge = playEmerge(node);
       moleNodes.set(mole.id, { node, emerge });
@@ -331,7 +477,7 @@ export function renderGame(): ScreenInstance {
   };
 
   const unsubscribe = game.subscribe((state) => {
-    updateHud(state);
+    hud.applyUpdate(state);
     syncMoles(state);
     if (state.status === 'game_over' && !redirecting) {
       redirecting = true;

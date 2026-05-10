@@ -1,7 +1,12 @@
 import type { MoleType } from '@tapetaupe/shared';
 
 import { el } from '../dom';
-import { renderStandardMole } from '../scene/characters';
+import {
+  renderBomb,
+  renderGoldenMole,
+  renderSpeedyMole,
+  renderStandardMole,
+} from '../scene/characters';
 
 interface TargetRowOptions {
   type: MoleType;
@@ -11,12 +16,23 @@ interface TargetRowOptions {
   danger?: boolean;
 }
 
+const ICON_SIZE = 36;
+
 function renderTargetIcon(type: MoleType): HTMLElement {
-  if (type === 'standard') return renderStandardMole(36);
-  const wrapper = document.createElement('div');
-  wrapper.className = `target-row__placeholder target-row__placeholder--${type}`;
-  wrapper.setAttribute('aria-hidden', 'true');
-  return wrapper;
+  switch (type) {
+    case 'standard': {
+      return renderStandardMole(ICON_SIZE);
+    }
+    case 'golden': {
+      return renderGoldenMole(ICON_SIZE);
+    }
+    case 'speedy': {
+      return renderSpeedyMole(ICON_SIZE);
+    }
+    case 'bomb': {
+      return renderBomb(ICON_SIZE);
+    }
+  }
 }
 
 export function renderTargetRow({
