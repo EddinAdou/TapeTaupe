@@ -11,7 +11,13 @@ import { renderStatRow } from '../components/stat-row';
 import { renderTargetRow } from '../components/target-row';
 import { renderTimerBar, variantForProgress } from '../components/timer-bar';
 import { el } from '../dom';
-import { playEmerge, playKill, playScorePopup } from '../game/animations';
+import {
+  type ParticleAccent,
+  playEmerge,
+  playKill,
+  playParticleBurst,
+  playScorePopup,
+} from '../game/animations';
 import { setLastGameStats } from '../game/last-game';
 import { createGame } from '../game/loop';
 import { t } from '../i18n';
@@ -53,6 +59,21 @@ function renderMoleByType(type: MoleType, size: number): HTMLElement {
     }
     case 'bomb': {
       return renderBomb(size);
+    }
+  }
+}
+
+function particleAccentForType(type: MoleType): ParticleAccent {
+  switch (type) {
+    case 'golden': {
+      return 'gold';
+    }
+    case 'speedy':
+    case 'bomb': {
+      return 'danger';
+    }
+    case 'standard': {
+      return 'primary';
     }
   }
 }
@@ -437,11 +458,13 @@ export function renderGame(): ScreenInstance {
     const result = game.tap(holeIndex, event.clientX, event.clientY);
     const stage = stages[holeIndex];
     if (!stage) return;
-    if (result.outcome === 'hit' && result.points > 0) {
-      const accent = result.type === 'golden' ? 'gold' : 'success';
-      playScorePopup(stage, `+${result.points}`, accent);
+    if (result.outcome === 'hit' && result.points > 0 && result.type !== null) {
+      const popupAccent = result.type === 'golden' ? 'gold' : 'success';
+      playScorePopup(stage, `+${result.points}`, popupAccent);
+      playParticleBurst(stage, particleAccentForType(result.type));
     } else if (result.outcome === 'bomb') {
       playScorePopup(stage, '−1', 'danger');
+      playParticleBurst(stage, 'danger');
     }
   };
   playfield.addEventListener('pointerdown', handlePointerDown);

@@ -27,6 +27,57 @@ export function playScorePopup(parent: HTMLElement, value: string, accent: Score
   animation.addEventListener('finish', () => popup.remove());
 }
 
+export type ParticleAccent = 'primary' | 'gold' | 'danger';
+
+const PARTICLE_COUNT = 14;
+const PARTICLE_DURATION_MS = 600;
+
+const ACCENT_COLOR: Record<ParticleAccent, string> = {
+  primary: 'var(--color-mole)',
+  gold: 'var(--color-treasure)',
+  danger: 'var(--color-speed)',
+};
+
+export function playParticleBurst(parent: HTMLElement, accent: ParticleAccent): void {
+  if (prefersReducedMotion()) return;
+  const burst = document.createElement('div');
+  burst.className = 'particle-burst';
+  parent.append(burst);
+  const palette = ['var(--color-sun)', ACCENT_COLOR[accent], 'var(--color-mole)'];
+  const animations: Animation[] = [];
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const angle = (i / PARTICLE_COUNT) * Math.PI * 2 + (Math.random() - 0.5) * 0.6;
+    const dist = 40 + Math.random() * 36;
+    const dx = Math.cos(angle) * dist;
+    const dy = Math.sin(angle) * dist - 14;
+    const size = 6 + Math.random() * 6;
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    particle.style.background = palette[i % 3] ?? ACCENT_COLOR[accent];
+    burst.append(particle);
+    const anim = particle.animate(
+      [
+        { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+        {
+          transform: `translate(calc(-50% + ${dx.toFixed(1)}px), calc(-50% + ${dy.toFixed(1)}px)) scale(0.7)`,
+          opacity: 0,
+        },
+      ],
+      {
+        duration: PARTICLE_DURATION_MS,
+        easing: 'cubic-bezier(0.4, 0, 0.6, 1)',
+        fill: 'forwards',
+      },
+    );
+    animations.push(anim);
+  }
+  Promise.all(animations.map((a) => a.finished))
+    .then(() => burst.remove())
+    .catch(() => burst.remove());
+}
+
 const REST_TRANSFORM = 'translateX(-50%) translateY(0) scale(1)';
 const HIDDEN_TRANSFORM = 'translateX(-50%) translateY(60%) scale(0)';
 const PEAK_TRANSFORM = 'translateX(-50%) translateY(15%) scale(1.05)';
