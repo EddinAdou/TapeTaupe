@@ -18,6 +18,7 @@ import {
   playEmerge,
   playKill,
   playParticleBurst,
+  playPulse,
   playScorePopup,
 } from '../game/animations';
 import { setLastGameStats } from '../game/last-game';
@@ -113,16 +114,19 @@ interface ComboCardRefs {
 }
 
 function buildComboCard(state: Readonly<GameState>): ComboCardRefs {
+  const boosted = state.boostHitsLeft > 0;
+  const displayMultiplier = boosted ? 2 : Math.max(1, state.combo);
+  const active = boosted || state.combo >= 2;
   const valueEl = el(
     'span',
-    { class: `combo-card__value tabular${state.combo >= 2 ? ' combo-card__value--active' : ''}` },
-    [`×${Math.max(1, state.combo)}`],
+    { class: `combo-card__value tabular${active ? ' combo-card__value--active' : ''}` },
+    [`×${displayMultiplier}`],
   );
   const headerRow = el('div', { class: 'combo-card__header' }, [
     renderCaption(t('game.combo')),
     valueEl,
   ]);
-  const dotsEl = renderComboDots(state.combo);
+  const dotsEl = renderComboDots(state.combo, boosted);
   const root = renderGlassCard([headerRow, dotsEl], 'hud-card hud-card--combo');
   return { root, valueEl, dotsEl };
 }
@@ -248,6 +252,7 @@ function buildRailsHud(state: Readonly<GameState>, quitButton: HTMLElement): Hud
   let prevLives = state.lives;
   let prevLevel = state.level;
   let prevCombo = state.combo;
+  let prevBoostForCombo = state.boostHitsLeft;
   let prevHits = state.hits;
   let prevTaps = state.taps;
   let prevComboMax = state.comboMax;
@@ -270,11 +275,14 @@ function buildRailsHud(state: Readonly<GameState>, quitButton: HTMLElement): Hud
       level.valueEl.textContent = String(next.level);
       prevLevel = next.level;
     }
-    if (next.combo !== prevCombo) {
+    const comboIncremented = next.combo > prevCombo;
+    if (next.combo !== prevCombo || next.boostHitsLeft !== prevBoostForCombo) {
       const updated = buildComboCard(next);
       combo.root.replaceWith(updated.root);
       combo = updated;
+      if (comboIncremented) playPulse(updated.valueEl);
       prevCombo = next.combo;
+      prevBoostForCombo = next.boostHitsLeft;
     }
     if (next.hits !== prevHits || next.taps !== prevTaps || next.comboMax !== prevComboMax) {
       const updated = buildStatsCard(next);
@@ -316,14 +324,17 @@ function buildMobileHud(state: Readonly<GameState>, quitButton: HTMLElement): Hu
   ]);
   const timerBar = renderTimerBar(progress);
 
+  const initialBoosted = state.boostHitsLeft > 0;
+  const initialDisplayMultiplier = initialBoosted ? 2 : Math.max(1, state.combo);
+  const initialActive = initialBoosted || state.combo >= 2;
   const comboValueEl = el('span', { class: 'mobile-hud__combo-value tabular' }, [
-    `×${Math.max(1, state.combo)}`,
+    `×${initialDisplayMultiplier}`,
   ]);
-  let comboDotsEl = renderComboDots(state.combo);
+  let comboDotsEl = renderComboDots(state.combo, initialBoosted);
   const comboBox = el(
     'div',
     {
-      class: `mobile-hud__combo${state.combo >= 2 ? ' mobile-hud__combo--active' : ''}`,
+      class: `mobile-hud__combo${initialActive ? ' mobile-hud__combo--active' : ''}`,
     },
     [
       el('div', { class: 'mobile-hud__combo-header' }, [
@@ -355,6 +366,7 @@ function buildMobileHud(state: Readonly<GameState>, quitButton: HTMLElement): Hu
   let prevLives = state.lives;
   let prevLevel = state.level;
   let prevCombo = state.combo;
+  let prevBoostForCombo = state.boostHitsLeft;
   let timerVariant = variantForProgress(progress);
   let lastSeconds = seconds;
 
@@ -373,12 +385,18 @@ function buildMobileHud(state: Readonly<GameState>, quitButton: HTMLElement): Hu
       levelValueEl.textContent = String(next.level);
       prevLevel = next.level;
     }
-    if (next.combo !== prevCombo) {
-      comboValueEl.textContent = `×${Math.max(1, next.combo)}`;
-      const updatedDots = renderComboDots(next.combo);
+    const comboIncremented = next.combo > prevCombo;
+    if (next.combo !== prevCombo || next.boostHitsLeft !== prevBoostForCombo) {
+      const boosted = next.boostHitsLeft > 0;
+      const displayMultiplier = boosted ? 2 : Math.max(1, next.combo);
+      comboValueEl.textContent = `×${displayMultiplier}`;
+      const updatedDots = renderComboDots(next.combo, boosted);
       comboDotsEl.replaceWith(updatedDots);
       comboDotsEl = updatedDots;
-      comboBox.classList.toggle('mobile-hud__combo--active', next.combo >= 2);
+      const active = boosted || next.combo >= 2;
+      comboBox.classList.toggle('mobile-hud__combo--active', active);
+      if (comboIncremented) playPulse(comboValueEl);
+      prevBoostForCombo = next.boostHitsLeft;
       prevCombo = next.combo;
     }
     const p = Math.max(0, Math.min(1, next.timeLeftMs / next.config.gameDurationMs));

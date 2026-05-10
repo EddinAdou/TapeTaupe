@@ -112,6 +112,22 @@ export function playBombFlash(parent: HTMLElement): void {
   animation.addEventListener('finish', () => flash.remove());
 }
 
+export function playPulse(element: HTMLElement): void {
+  if (prefersReducedMotion()) return;
+  element.animate(
+    [
+      { transform: 'scale(1)' },
+      { transform: 'scale(1.25)', offset: 0.4 },
+      { transform: 'scale(1)' },
+    ],
+    {
+      duration: 220,
+      easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      fill: 'none',
+    },
+  );
+}
+
 const REST_TRANSFORM = 'translateX(-50%) translateY(0) scale(1)';
 const HIDDEN_TRANSFORM = 'translateX(-50%) translateY(60%) scale(0)';
 const PEAK_TRANSFORM = 'translateX(-50%) translateY(15%) scale(1.05)';

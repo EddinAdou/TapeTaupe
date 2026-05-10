@@ -413,6 +413,10 @@
   background: var(--color-foliage-dark);
 }
 
+.combo-dots--boosted .combo-dots__segment--filled {
+  background: var(--color-mole);
+}
+
 .hud-card--lives .lives {
   margin-top: var(--space-1);
 }
