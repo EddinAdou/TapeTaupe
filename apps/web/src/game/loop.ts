@@ -1,7 +1,7 @@
 import type { ActiveMole, GameConfig, GameState, MoleType } from '@tapetaupe/shared';
 import { createInitialState } from '@tapetaupe/shared';
 
-import { applyHit, applyMiss, pointsForType } from './scoring';
+import { applyHit, applyMiss, computeLevel, pointsForType } from './scoring';
 import {
   addMole,
   expireMoles,
@@ -134,6 +134,7 @@ export function createGame(config: GameConfig, options: CreateGameOptions = {}):
       const moleType = mole.type;
       applyHit(state, mole);
       state.activeMoles.splice(moleIndex, 1);
+      state.level = computeLevel(state.score);
       result =
         moleType === 'bomb'
           ? { outcome: 'bomb', points: 0, type: 'bomb' }

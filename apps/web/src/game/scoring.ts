@@ -7,8 +7,15 @@ const POINTS: Record<MoleType, number> = {
   bomb: 0,
 };
 
+export const MAX_LEVEL = 10;
+export const POINTS_PER_LEVEL = 250;
+
 export function pointsForType(type: MoleType): number {
   return POINTS[type];
+}
+
+export function computeLevel(score: number): number {
+  return Math.min(MAX_LEVEL, 1 + Math.floor(score / POINTS_PER_LEVEL));
 }
 
 export function applyHit(state: GameState, mole: ActiveMole): void {
