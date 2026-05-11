@@ -4,6 +4,7 @@ import { renderCaption } from '../components/caption';
 import { renderChunkyButton, renderPlayTriangle } from '../components/chunky-button';
 import { renderGlassCard } from '../components/glass-card';
 import { el } from '../dom';
+import { stopAmbient, stopMusic } from '../game/audio';
 import { getLastGameStats, type LastGameStats } from '../game/last-game';
 import { t } from '../i18n';
 import type { ScreenInstance } from '../screen-manager';
@@ -23,6 +24,8 @@ function renderPill(text: string): HTMLElement {
 }
 
 export function renderGameOver(): ScreenInstance {
+  stopMusic();
+  stopAmbient();
   const stats = getLastGameStats() ?? DEFAULT_STATS;
 
   const element = el('section', { class: 'screen screen-gameover' }, [

@@ -32,8 +32,10 @@ const MUSIC_TRACKS = [
   '/audio/music-5.mp3',
   '/audio/music-6.mp3',
 ];
+const AMBIENT_PATH = '/audio/wind-loop.mp3';
 const SFX_VOLUME = 0.5;
 const MUSIC_VOLUME = 0.3;
+const AMBIENT_VOLUME = 0.4;
 
 let audioContext: AudioContext | null = null;
 let muted = false;
@@ -72,6 +74,9 @@ function getSfx(type: SoundType): SfxEntry {
 
 const musicCache = new Map<string, Howl>();
 let currentMusic: Howl | null = null;
+let ambientHowl: Howl | null = null;
+let currentAmbient: Howl | null = null;
+let ambientFailed = false;
 
 function getMusicHowl(src: string): Howl {
   const cached = musicCache.get(src);
@@ -86,6 +91,22 @@ function getMusicHowl(src: string): Howl {
   return h;
 }
 
+function getAmbientHowl(): Howl | null {
+  if (ambientFailed) return null;
+  if (ambientHowl) return ambientHowl;
+  ambientHowl = new Howl({
+    src: [AMBIENT_PATH],
+    loop: true,
+    volume: 0,
+    preload: true,
+    onloaderror: () => {
+      ambientFailed = true;
+      ambientHowl = null;
+    },
+  });
+  return ambientHowl;
+}
+
 function pickRandomTrack(): string {
   const idx = Math.floor(Math.random() * MUSIC_TRACKS.length);
   return MUSIC_TRACKS[idx] ?? MUSIC_TRACKS[0] ?? '';
@@ -97,6 +118,10 @@ export function setMuted(value: boolean): void {
     if (value) currentMusic.pause();
     else currentMusic.play();
   }
+  if (currentAmbient) {
+    if (value) currentAmbient.pause();
+    else currentAmbient.play();
+  }
 }
 
 export function isMuted(): boolean {
@@ -105,6 +130,7 @@ export function isMuted(): boolean {
 
 export function startMusic(): void {
   if (muted) return;
+  stopAmbient(300);
   if (currentMusic && currentMusic.playing()) return;
   const track = pickRandomTrack();
   if (!track) return;
@@ -118,6 +144,25 @@ export function stopMusic(fadeMs = 400): void {
   if (!currentMusic) return;
   const h = currentMusic;
   currentMusic = null;
+  h.fade(h.volume(), 0, fadeMs);
+  setTimeout(() => h.stop(), fadeMs);
+}
+
+export function startAmbient(): void {
+  if (muted) return;
+  stopMusic(300);
+  if (currentAmbient && currentAmbient.playing()) return;
+  const h = getAmbientHowl();
+  if (!h) return;
+  if (!h.playing()) h.play();
+  h.fade(0, AMBIENT_VOLUME, 800);
+  currentAmbient = h;
+}
+
+export function stopAmbient(fadeMs = 400): void {
+  if (!currentAmbient) return;
+  const h = currentAmbient;
+  currentAmbient = null;
   h.fade(h.volume(), 0, fadeMs);
   setTimeout(() => h.stop(), fadeMs);
 }
