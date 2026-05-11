@@ -21,7 +21,7 @@ const SFX_PATHS: Record<SoundType, string> = {
   miss: '/audio/miss.ogg',
   bomb: '/audio/bomb.ogg',
   levelUp: '/audio/level-up.ogg',
-  gameOver: '/audio/game-over.ogg',
+  gameOver: '/audio/game-over.mp3',
 };
 
 const MUSIC_TRACKS = [
