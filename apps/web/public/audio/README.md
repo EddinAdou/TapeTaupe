@@ -4,15 +4,15 @@ Played via Howler.js with a synth fallback for SFX if a file fails to load. Musi
 
 ## Sound effects (`.ogg`)
 
-| Filename | Plays when | Current source |
-| --- | --- | --- |
-| `hit-standard.ogg` | Tap a standard mole (+10) | Kenney Interface Sounds — `click_001.ogg` |
-| `hit-golden.ogg` | Tap a golden mole (+50) | Kenney Casino Audio — `chips-stack-1.ogg` |
-| `hit-speedy.ogg` | Tap a speedy mole (+20, triggers ×2 boost) | Kenney Interface Sounds — `click_005.ogg` |
-| `miss.ogg` | Tap an empty hole | Kenney Interface Sounds — `error_001.ogg` |
-| `bomb.ogg` | Tap a bomb (−1 life) | Kenney Impact Sounds — `impactMining_000.ogg` |
-| `level-up.ogg` | Level rises (every 250 pts) | Kenney Music Jingles — `8-Bit jingles/jingles_NES01.ogg` |
-| `game-over.mp3` | Round ends | Pixabay / Freesound — sad trombone (wah wah wah waah) |
+| Filename           | Plays when                                 | Current source                                           |
+| ------------------ | ------------------------------------------ | -------------------------------------------------------- |
+| `hit-standard.ogg` | Tap a standard mole (+10)                  | Kenney Interface Sounds — `click_001.ogg`                |
+| `hit-golden.ogg`   | Tap a golden mole (+50)                    | Kenney Casino Audio — `chips-stack-1.ogg`                |
+| `hit-speedy.ogg`   | Tap a speedy mole (+20, triggers ×2 boost) | Kenney Interface Sounds — `click_005.ogg`                |
+| `miss.ogg`         | Tap an empty hole                          | Kenney Interface Sounds — `error_001.ogg`                |
+| `bomb.ogg`         | Tap a bomb (−1 life)                       | Kenney Impact Sounds — `impactMining_000.ogg`            |
+| `level-up.ogg`     | Level rises (every 250 pts)                | Kenney Music Jingles — `8-Bit jingles/jingles_NES01.ogg` |
+| `game-over.mp3`    | Round ends                                 | Pixabay / Freesound — sad trombone (wah wah wah waah)    |
 
 To swap any of these for a different Kenney pick, just overwrite the `.ogg` with the file you prefer (same name).
 
