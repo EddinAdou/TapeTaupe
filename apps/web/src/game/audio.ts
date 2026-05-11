@@ -33,7 +33,7 @@ const MUSIC_TRACKS = [
   '/audio/music-6.mp3',
 ];
 const AMBIENT_PATH = '/audio/wind-loop.mp3';
-const SFX_VOLUME = 0.5;
+const SFX_VOLUME = 0.8;
 const MUSIC_VOLUME = 0.3;
 const AMBIENT_VOLUME = 0.4;
 
