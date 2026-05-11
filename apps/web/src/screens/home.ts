@@ -2,6 +2,7 @@ import { renderChunkyButton, renderPlayTriangle } from '../components/chunky-but
 import { renderLogo } from '../components/logo';
 import { renderStatCard } from '../components/stat-card';
 import { el } from '../dom';
+import { startAmbient } from '../game/audio';
 import { t } from '../i18n';
 import { renderStandardMole } from '../scene/characters';
 import { renderSandHole } from '../scene/sand-hole';
@@ -9,6 +10,7 @@ import type { ScreenInstance } from '../screen-manager';
 import { setScreen } from '../screen-manager';
 
 export function renderHome(): ScreenInstance {
+  startAmbient();
   const element = el('section', { class: 'screen screen-home' }, [
     el('div', { class: 'home__topbar' }, [
       el('div', { class: 'glass-card home__version' }, [

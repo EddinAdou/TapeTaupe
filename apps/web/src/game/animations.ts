@@ -2,7 +2,7 @@ function prefersReducedMotion(): boolean {
   return globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-export type ScorePopupAccent = 'success' | 'gold' | 'danger';
+export type ScorePopupAccent = 'success' | 'gold' | 'primary' | 'danger';
 
 export function playScorePopup(parent: HTMLElement, value: string, accent: ScorePopupAccent): void {
   const popup = document.createElement('div');
@@ -25,6 +25,198 @@ export function playScorePopup(parent: HTMLElement, value: string, accent: Score
     },
   );
   animation.addEventListener('finish', () => popup.remove());
+}
+
+export type ParticleAccent = 'primary' | 'gold' | 'danger';
+
+const PARTICLE_COUNT = 14;
+const PARTICLE_DURATION_MS = 600;
+
+const ACCENT_COLOR: Record<ParticleAccent, string> = {
+  primary: 'var(--color-mole)',
+  gold: 'var(--color-treasure)',
+  danger: 'var(--color-speed)',
+};
+
+export function playParticleBurst(parent: HTMLElement, accent: ParticleAccent): void {
+  if (prefersReducedMotion()) return;
+  const burst = document.createElement('div');
+  burst.className = 'particle-burst';
+  parent.append(burst);
+  const palette = ['var(--color-sun)', ACCENT_COLOR[accent], 'var(--color-mole)'];
+  const animations: Animation[] = [];
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const angle = (i / PARTICLE_COUNT) * Math.PI * 2 + (Math.random() - 0.5) * 0.6;
+    const dist = 40 + Math.random() * 36;
+    const dx = Math.cos(angle) * dist;
+    const dy = Math.sin(angle) * dist - 14;
+    const size = 6 + Math.random() * 6;
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    particle.style.background = palette[i % 3] ?? ACCENT_COLOR[accent];
+    burst.append(particle);
+    const anim = particle.animate(
+      [
+        { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+        {
+          transform: `translate(calc(-50% + ${dx.toFixed(1)}px), calc(-50% + ${dy.toFixed(1)}px)) scale(0.7)`,
+          opacity: 0,
+        },
+      ],
+      {
+        duration: PARTICLE_DURATION_MS,
+        easing: 'cubic-bezier(0.4, 0, 0.6, 1)',
+        fill: 'forwards',
+      },
+    );
+    animations.push(anim);
+  }
+  Promise.all(animations.map((a) => a.finished))
+    .then(() => burst.remove())
+    .catch(() => burst.remove());
+}
+
+const SHAKE_AMPLITUDE_PX = 8;
+const SHAKE_STEPS = 16;
+const SHAKE_DURATION_MS = 480;
+
+export function playBombShake(element: HTMLElement): void {
+  if (prefersReducedMotion()) return;
+  const keyframes: Keyframe[] = [];
+  for (let i = 0; i < SHAKE_STEPS; i++) {
+    const decay = 1 - i / SHAKE_STEPS;
+    const x = (Math.random() - 0.5) * 2 * SHAKE_AMPLITUDE_PX * decay;
+    const y = (Math.random() - 0.5) * 2 * SHAKE_AMPLITUDE_PX * decay;
+    keyframes.push({ transform: `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)` });
+  }
+  keyframes.push({ transform: 'translate(0, 0)' });
+  element.animate(keyframes, {
+    duration: SHAKE_DURATION_MS,
+    easing: 'linear',
+    fill: 'forwards',
+  });
+}
+
+export function playBombFlash(parent: HTMLElement): void {
+  if (prefersReducedMotion()) return;
+  const flash = document.createElement('div');
+  flash.className = 'bomb-flash';
+  parent.append(flash);
+  const animation = flash.animate([{ opacity: 0 }, { opacity: 0.3, offset: 0.2 }, { opacity: 0 }], {
+    duration: 300,
+    easing: 'cubic-bezier(0.4, 0, 0.6, 1)',
+    fill: 'forwards',
+  });
+  animation.addEventListener('finish', () => flash.remove());
+}
+
+export function playPulse(element: HTMLElement): void {
+  if (prefersReducedMotion()) return;
+  element.animate(
+    [
+      { transform: 'scale(1)' },
+      { transform: 'scale(1.25)', offset: 0.4 },
+      { transform: 'scale(1)' },
+    ],
+    {
+      duration: 220,
+      easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      fill: 'none',
+    },
+  );
+}
+
+const CONFETTI_COUNT = 50;
+const LEVEL_UP_DURATION_MS = 1500;
+const CONFETTI_COLORS = [
+  'var(--color-mole)',
+  'var(--color-treasure)',
+  'var(--color-foliage)',
+  'var(--color-speed)',
+  'var(--color-mole-belly)',
+  'var(--color-sea)',
+];
+
+export function playLevelUp(parent: HTMLElement, level: number): void {
+  if (prefersReducedMotion()) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'level-up-overlay';
+  parent.append(overlay);
+
+  for (let i = 0; i < CONFETTI_COUNT; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'level-up-overlay__confetti';
+    const x = Math.random() * 100;
+    const size = 8 + Math.random() * 8;
+    const rot = Math.random() * 360;
+    confetti.style.left = `${x.toFixed(1)}%`;
+    confetti.style.width = `${size.toFixed(1)}px`;
+    confetti.style.height = `${(size * 0.5).toFixed(1)}px`;
+    confetti.style.background = CONFETTI_COLORS[i % CONFETTI_COLORS.length] ?? 'var(--color-mole)';
+    overlay.append(confetti);
+    confetti.animate(
+      [
+        { transform: `translateY(-20px) rotate(${rot.toFixed(0)}deg)`, opacity: 1 },
+        {
+          transform: `translateY(100vh) rotate(${(rot + 720).toFixed(0)}deg)`,
+          opacity: 1,
+          offset: 0.9,
+        },
+        {
+          transform: `translateY(100vh) rotate(${(rot + 720).toFixed(0)}deg)`,
+          opacity: 0,
+          offset: 1,
+        },
+      ],
+      {
+        duration: LEVEL_UP_DURATION_MS,
+        delay: Math.random() * 300,
+        easing: 'linear',
+        fill: 'forwards',
+      },
+    );
+  }
+
+  const textContainer = document.createElement('div');
+  textContainer.className = 'level-up-overlay__text';
+  const heading = document.createElement('div');
+  heading.className = 'level-up-overlay__heading';
+  heading.textContent = 'NIVEAU';
+  const value = document.createElement('div');
+  value.className = 'level-up-overlay__value tabular';
+  value.textContent = String(level);
+  textContainer.append(heading, value);
+  overlay.append(textContainer);
+  textContainer.animate(
+    [
+      {
+        transform: 'translate(-50%, -50%) scale(0)',
+        opacity: 0,
+        easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      },
+      {
+        transform: 'translate(-50%, -50%) scale(1.2)',
+        opacity: 1,
+        offset: 0.2,
+        easing: 'cubic-bezier(0.4, 0, 0.6, 1)',
+      },
+      {
+        transform: 'translate(-50%, -50%) scale(1)',
+        opacity: 1,
+        offset: 0.7,
+        easing: 'cubic-bezier(0.4, 0, 0.6, 1)',
+      },
+      { transform: 'translate(-50%, -50%) scale(0)', opacity: 0 },
+    ],
+    {
+      duration: LEVEL_UP_DURATION_MS,
+      fill: 'forwards',
+    },
+  );
+
+  setTimeout(() => overlay.remove(), LEVEL_UP_DURATION_MS + 100);
 }
 
 const REST_TRANSFORM = 'translateX(-50%) translateY(0) scale(1)';

@@ -11,9 +11,20 @@ import { renderStatRow } from '../components/stat-row';
 import { renderTargetRow } from '../components/target-row';
 import { renderTimerBar, variantForProgress } from '../components/timer-bar';
 import { el } from '../dom';
-import { playEmerge, playKill, playScorePopup } from '../game/animations';
+import {
+  type ParticleAccent,
+  playBombFlash,
+  playBombShake,
+  playEmerge,
+  playKill,
+  playLevelUp,
+  playParticleBurst,
+  playPulse,
+  playScorePopup,
+} from '../game/animations';
+import { playSound, type SoundType, startMusic, stopMusic } from '../game/audio';
 import { setLastGameStats } from '../game/last-game';
-import { createGame } from '../game/loop';
+import { createGame, type TapResult } from '../game/loop';
 import { t } from '../i18n';
 import {
   renderBomb,
@@ -57,6 +68,32 @@ function renderMoleByType(type: MoleType, size: number): HTMLElement {
   }
 }
 
+function particleAccentForType(type: MoleType): ParticleAccent {
+  switch (type) {
+    case 'golden': {
+      return 'gold';
+    }
+    case 'speedy':
+    case 'bomb': {
+      return 'danger';
+    }
+    case 'standard': {
+      return 'primary';
+    }
+  }
+}
+
+function soundForResult(result: TapResult): SoundType | null {
+  if (result.outcome === 'miss') return 'miss';
+  if (result.outcome === 'bomb') return 'bomb';
+  if (result.outcome === 'hit') {
+    if (result.type === 'golden') return 'hitGolden';
+    if (result.type === 'speedy') return 'hitSpeedy';
+    return 'hitStandard';
+  }
+  return null;
+}
+
 function detectViewport(): Viewport {
   if (globalThis.matchMedia('(min-width: 1280px)').matches) return 'desktop';
   if (globalThis.matchMedia('(min-width: 768px)').matches) return 'tablet';
@@ -90,16 +127,19 @@ interface ComboCardRefs {
 }
 
 function buildComboCard(state: Readonly<GameState>): ComboCardRefs {
+  const boosted = state.boostHitsLeft > 0;
+  const displayMultiplier = boosted ? 2 : Math.max(1, state.combo);
+  const active = boosted || state.combo >= 2;
   const valueEl = el(
     'span',
-    { class: `combo-card__value tabular${state.combo >= 2 ? ' combo-card__value--active' : ''}` },
-    [`×${Math.max(1, state.combo)}`],
+    { class: `combo-card__value tabular${active ? ' combo-card__value--active' : ''}` },
+    [`×${displayMultiplier}`],
   );
   const headerRow = el('div', { class: 'combo-card__header' }, [
     renderCaption(t('game.combo')),
     valueEl,
   ]);
-  const dotsEl = renderComboDots(state.combo);
+  const dotsEl = renderComboDots(state.combo, boosted);
   const root = renderGlassCard([headerRow, dotsEl], 'hud-card hud-card--combo');
   return { root, valueEl, dotsEl };
 }
@@ -225,6 +265,7 @@ function buildRailsHud(state: Readonly<GameState>, quitButton: HTMLElement): Hud
   let prevLives = state.lives;
   let prevLevel = state.level;
   let prevCombo = state.combo;
+  let prevBoostForCombo = state.boostHitsLeft;
   let prevHits = state.hits;
   let prevTaps = state.taps;
   let prevComboMax = state.comboMax;
@@ -247,11 +288,14 @@ function buildRailsHud(state: Readonly<GameState>, quitButton: HTMLElement): Hud
       level.valueEl.textContent = String(next.level);
       prevLevel = next.level;
     }
-    if (next.combo !== prevCombo) {
+    const comboIncremented = next.combo > prevCombo;
+    if (next.combo !== prevCombo || next.boostHitsLeft !== prevBoostForCombo) {
       const updated = buildComboCard(next);
       combo.root.replaceWith(updated.root);
       combo = updated;
+      if (comboIncremented) playPulse(updated.valueEl);
       prevCombo = next.combo;
+      prevBoostForCombo = next.boostHitsLeft;
     }
     if (next.hits !== prevHits || next.taps !== prevTaps || next.comboMax !== prevComboMax) {
       const updated = buildStatsCard(next);
@@ -293,14 +337,17 @@ function buildMobileHud(state: Readonly<GameState>, quitButton: HTMLElement): Hu
   ]);
   const timerBar = renderTimerBar(progress);
 
+  const initialBoosted = state.boostHitsLeft > 0;
+  const initialDisplayMultiplier = initialBoosted ? 2 : Math.max(1, state.combo);
+  const initialActive = initialBoosted || state.combo >= 2;
   const comboValueEl = el('span', { class: 'mobile-hud__combo-value tabular' }, [
-    `×${Math.max(1, state.combo)}`,
+    `×${initialDisplayMultiplier}`,
   ]);
-  let comboDotsEl = renderComboDots(state.combo);
+  let comboDotsEl = renderComboDots(state.combo, initialBoosted);
   const comboBox = el(
     'div',
     {
-      class: `mobile-hud__combo${state.combo >= 2 ? ' mobile-hud__combo--active' : ''}`,
+      class: `mobile-hud__combo${initialActive ? ' mobile-hud__combo--active' : ''}`,
     },
     [
       el('div', { class: 'mobile-hud__combo-header' }, [
@@ -332,6 +379,7 @@ function buildMobileHud(state: Readonly<GameState>, quitButton: HTMLElement): Hu
   let prevLives = state.lives;
   let prevLevel = state.level;
   let prevCombo = state.combo;
+  let prevBoostForCombo = state.boostHitsLeft;
   let timerVariant = variantForProgress(progress);
   let lastSeconds = seconds;
 
@@ -350,12 +398,18 @@ function buildMobileHud(state: Readonly<GameState>, quitButton: HTMLElement): Hu
       levelValueEl.textContent = String(next.level);
       prevLevel = next.level;
     }
-    if (next.combo !== prevCombo) {
-      comboValueEl.textContent = `×${Math.max(1, next.combo)}`;
-      const updatedDots = renderComboDots(next.combo);
+    const comboIncremented = next.combo > prevCombo;
+    if (next.combo !== prevCombo || next.boostHitsLeft !== prevBoostForCombo) {
+      const boosted = next.boostHitsLeft > 0;
+      const displayMultiplier = boosted ? 2 : Math.max(1, next.combo);
+      comboValueEl.textContent = `×${displayMultiplier}`;
+      const updatedDots = renderComboDots(next.combo, boosted);
       comboDotsEl.replaceWith(updatedDots);
       comboDotsEl = updatedDots;
-      comboBox.classList.toggle('mobile-hud__combo--active', next.combo >= 2);
+      const active = boosted || next.combo >= 2;
+      comboBox.classList.toggle('mobile-hud__combo--active', active);
+      if (comboIncremented) playPulse(comboValueEl);
+      prevBoostForCombo = next.boostHitsLeft;
       prevCombo = next.combo;
     }
     const p = Math.max(0, Math.min(1, next.timeLeftMs / next.config.gameDurationMs));
@@ -427,6 +481,16 @@ export function renderGame(): ScreenInstance {
   const { root: playfield, cells, stages } = buildPlayfield(holeCount);
   const moleNodes = new Map<number, { node: HTMLElement; emerge: Animation | null }>();
 
+  const boostIndicator = el('div', { class: 'boost-indicator' });
+
+  const screenClass = `screen screen-game${isMobile ? ' screen-game--mobile' : ''}`;
+  const element = el('section', { class: screenClass }, [
+    ...hud.pre,
+    playfield,
+    ...hud.post,
+    boostIndicator,
+  ]);
+
   const handlePointerDown = (event: PointerEvent): void => {
     const target = event.target;
     if (!(target instanceof Element)) return;
@@ -435,21 +499,38 @@ export function renderGame(): ScreenInstance {
     const holeIndex = Number(cell.dataset.hole);
     if (!Number.isInteger(holeIndex)) return;
     const result = game.tap(holeIndex, event.clientX, event.clientY);
+    const sound = soundForResult(result);
+    if (sound) playSound(sound);
     const stage = stages[holeIndex];
     if (!stage) return;
-    if (result.outcome === 'hit' && result.points > 0) {
-      const accent = result.type === 'golden' ? 'gold' : 'success';
-      playScorePopup(stage, `+${result.points}`, accent);
+    if (result.outcome === 'hit' && result.points > 0 && result.type !== null) {
+      const popupAccent =
+        result.type === 'golden' ? 'gold' : result.boosted ? 'primary' : 'success';
+      playScorePopup(stage, `+${result.points}`, popupAccent);
+      playParticleBurst(stage, particleAccentForType(result.type));
     } else if (result.outcome === 'bomb') {
-      playScorePopup(stage, '−1', 'danger');
+      playScorePopup(stage, '−1 VIE', 'danger');
+      playParticleBurst(stage, 'danger');
+      playBombShake(element);
+      playBombFlash(element);
     }
   };
   playfield.addEventListener('pointerdown', handlePointerDown);
 
-  const screenClass = `screen screen-game${isMobile ? ' screen-game--mobile' : ''}`;
-  const element = el('section', { class: screenClass }, [...hud.pre, playfield, ...hud.post]);
-
   let redirecting = false;
+  let prevBoost = -1;
+  let prevLevelForOverlay = game.state.level;
+
+  const updateBoostIndicator = (state: Readonly<GameState>): void => {
+    if (state.boostHitsLeft === prevBoost) return;
+    prevBoost = state.boostHitsLeft;
+    if (state.boostHitsLeft > 0) {
+      boostIndicator.classList.add('boost-indicator--active');
+      boostIndicator.textContent = `×2 boost · ${state.boostHitsLeft} restants`;
+    } else {
+      boostIndicator.classList.remove('boost-indicator--active');
+    }
+  };
 
   const syncMoles = (state: Readonly<GameState>): void => {
     const liveIds = new Set<number>();
@@ -478,17 +559,26 @@ export function renderGame(): ScreenInstance {
 
   const unsubscribe = game.subscribe((state) => {
     hud.applyUpdate(state);
+    updateBoostIndicator(state);
+    if (state.level > prevLevelForOverlay) {
+      playLevelUp(element, state.level);
+      playSound('levelUp');
+      prevLevelForOverlay = state.level;
+    }
     syncMoles(state);
     if (state.status === 'game_over' && !redirecting) {
       redirecting = true;
+      playSound('gameOver');
       setLastGameStats(state);
       queueMicrotask(() => setScreen('gameover'));
     }
   });
 
   game.start();
+  startMusic();
 
   const cleanup = (): void => {
+    stopMusic();
     unsubscribe();
     game.stop();
     playfield.removeEventListener('pointerdown', handlePointerDown);

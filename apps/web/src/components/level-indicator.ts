@@ -1,7 +1,5 @@
 import { el } from '../dom';
-
-const MAX_LEVEL = 10;
-const POINTS_PER_LEVEL = 250;
+import { MAX_LEVEL, POINTS_PER_LEVEL } from '../game/scoring';
 
 export interface LevelIndicatorRefs {
   root: HTMLElement;
